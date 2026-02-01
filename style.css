@@ -1,17 +1,17 @@
-/* style.css - Central UI & Theme Control (Updated for Premium Look) */
+/* style.css - Central UI & Theme Control (Cyberpunk Premium Version) */
 :root {
-    /* ডার্ক ব্যাকগ্রাউন্ড - পিওর ব্ল্যাকের কাছাকাছি */
-    --bg-dark: #0b0e14;       
+    /* ডার্ক ব্যাকগ্রাউন্ড - গভীর নেভি ব্ল্যাক */
+    --bg-dark: #07090f;       
     
-    /* মডার্ন গেমিং গ্রাডিয়েন্ট (বেগুনি থেকে সায়ান) */
-    --accent-grad: linear-gradient(135deg, #8b5cf6, #06b6d4); 
+    /* প্রিমিয়াম পার্পল গ্রাডিয়েন্ট */
+    --accent-grad: linear-gradient(135deg, #a855f7, #ec4899); 
     
     /* বটম ন্যাভবার ডিজাইন */
-    --nav-bg: rgba(11, 14, 20, 0.95); 
-    --active-color: #06b6d4;  /* সায়ান কালার একটিভ আইটেমের জন্য */
+    --nav-bg: rgba(7, 9, 15, 0.98); 
+    --active-color: #f472b6;  /* ইলেকট্রিক পিঙ্ক একটিভ আইটেমের জন্য */
     
     --header-h: 55px;         
-    --nav-h: 60px;            
+    --nav-h: 65px;            
 }
 
 /* ১. ইউনিভার্সাল রিসেট */
@@ -19,36 +19,37 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent; /* মোবাইলে ট্যাপ করলে নীল দাগ হবে না */
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body { 
     background-color: var(--bg-dark) !important; 
-    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* ২. কন্টেন্ট এরিয়া */
+/* ২. কন্টেন্ট এরিয়া - কন্টেন্ট যাতে হেডার বা ন্যাভবারের নিচে না ঢাকা পড়ে */
 main, .page-content {
-    padding-top: calc(var(--header-h) + 10px) !important;
-    padding-bottom: calc(var(--nav-h) + 20px) !important;
+    padding-top: calc(var(--header-h) + 15px) !important;
+    padding-bottom: calc(var(--nav-h) + 25px) !important;
     display: block;
     width: 100%;
 }
 
-/* ৩. হেডার ডিজাইন - গ্রাডিয়েন্ট বর্ডার সহ */
+/* ৩. হেডার ডিজাইন - গ্লাস ইফেক্ট ও পার্পল গ্লো */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
-    background: var(--bg-dark) !important;
-    border-bottom: 2px solid #1e293b; /* হালকা বর্ডার */
+    background: rgba(7, 9, 15, 0.9) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid #3b0764; /* ডার্ক পার্পল বর্ডার */
     z-index: 10000;
     display: flex; align-items: center;
     padding: 0 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
 }
 
 /* ৪. বটম ন্যাভবার ডিজাইন */
@@ -60,9 +61,10 @@ header {
     backdrop-filter: blur(20px);
     display: flex; justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(168, 85, 247, 0.2);
     z-index: 10000;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
+    border-radius: 20px 20px 0 0; /* ওপরের দিকটা হালকা রাউন্ড */
 }
 
 /* ৫. ন্যাভবার আইটেম ও আইকন */
@@ -73,32 +75,45 @@ header {
     color: #64748b; 
     text-decoration: none; 
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .nav-item img { 
-    width: 24px !important; 
-    height: 24px !important; 
+    width: 26px !important; 
+    height: 26px !important; 
     margin-bottom: 4px; 
     object-fit: contain;
-    filter: grayscale(1) opacity(0.5); /* ডিফল্ট অবস্থায় ইন-এক্টিভ */
+    filter: brightness(0) invert(0.5); /* ডিফল্ট গ্রে */
+    opacity: 0.6;
 }
 
 .nav-item.active { 
     color: var(--active-color) !important;
-    transform: translateY(-2px); /* একটু ওপরে উঠে থাকবে */
+    transform: scale(1.1) translateY(-3px); /* একটু বড় হয়ে ওপরে উঠবে */
 }
 
 .nav-item.active img { 
-    filter: none !important; /* কালার ফুল আইকন দেখাবে */
+    filter: none !important; /* কালার ফুল আইকন */
     opacity: 1;
-    drop-shadow: 0 0 8px var(--active-color);
+    filter: drop-shadow(0 0 5px var(--active-color)) !important;
 }
 
-/* এক্সট্রা গ্লো এফেক্ট */
-.active-glow {
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+/* ৬. গ্লোয়িং বাটন বা একসেন্ট (Card-এ ব্যবহারের জন্য) */
+.btn-premium {
+    background: var(--accent-grad);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+    border: none;
+    color: white;
+    font-weight: bold;
+    border-radius: 12px;
+}
+
+/* লোডিং স্পিনার */
+#loadingSpinner { 
+    background-color: var(--bg-dark) !important; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
