@@ -10,11 +10,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   
   <style>
+    /* ১. কার্ড গ্রিড এর উপরের বাড়তি গ্যাপ রিমুভ করা হয়েছে */
+    #cardsGrid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 1.2rem; 
+        max-width: 480px; 
+        margin: 0 auto; 
+        padding-top: 0px !important; /* গ্যাপ কমানো হয়েছে */
+    }
+
     .es-main-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 1.3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-left: 7px solid #ea580c; margin-bottom: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
     .es-main-section:active { transform: scale(0.95); }
     .duo-section { border-left-color: #0ea5e9 !important; }
     .squad-section { border-left-color: #fbbf24 !important; }
-    #cardsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 480px; margin: 0 auto; padding-top: 1rem; }
+    
     .promo-banner { width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     
     /* লোডার অ্যানিমেশন */
@@ -23,6 +33,11 @@
     /* স্ক্রলবার হাইড করা */
     body::-webkit-scrollbar { display: none; }
     body { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* কন্টেন্টের ভেতরের প্রথম এলিমেন্টের মার্জিন রিমুভ */
+    #app-outlet > *:first-child {
+        margin-top: 0 !important;
+    }
   </style>
 </head>
 
@@ -43,14 +58,22 @@
       <div style="width:40px; height:40px; border:3px solid rgba(16,185,129,0.1); border-top-color:#10b981; border-radius:50%; animation:spin 1s linear infinite;"></div>
   </div>
 
-  <main id="app-outlet" class="pt-[70px] pb-[80px] min-h-screen">
+  <main id="app-outlet" class="pt-[60px] pb-[75px] min-h-screen">
       </main>
 
   <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
-    <button onclick="router.navigate('home')" class="nav-btn transition-all duration-300"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6"></button>
-    <button onclick="router.navigate('mymatches')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6"></button>
-    <button onclick="router.navigate('refer')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6"></button>
-    <button onclick="router.navigate('profile')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6"></button>
+    <button onclick="router.navigate('home')" class="nav-btn transition-all duration-300">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6">
+    </button>
+    <button onclick="router.navigate('mymatches')" class="nav-btn transition-all duration-300 opacity-50">
+        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6">
+    </button>
+    <button onclick="router.navigate('refer')" class="nav-btn transition-all duration-300 opacity-50">
+        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6">
+    </button>
+    <button onclick="router.navigate('profile')" class="nav-btn transition-all duration-300 opacity-50">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6">
+    </button>
   </nav>
 
   <script type="module" src="app-ui.js"></script>
