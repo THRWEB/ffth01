@@ -18,7 +18,6 @@
 </style>
 
 <main class="px-4 max-w-md mx-auto space-y-6 py-4">
-    
     <div class="relative overflow-hidden rounded-3xl shadow-2xl border border-emerald-500/20 mt-2">
       <img src="https://i.postimg.cc/nh95tNsB/1769104260982.png" class="w-full h-44 object-cover" alt="Referral Banner" />
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
@@ -32,7 +31,7 @@
       <p class="text-xs uppercase tracking-[0.2em] text-emerald-500 font-bold mb-4">Your Invitation Code</p>
       <div class="flex items-center gap-2 bg-black/40 p-2 rounded-2xl border border-white/5">
         <div id="referCode" class="flex-1 font-mono text-2xl font-black text-white tracking-widest uppercase">LOADING...</div>
-        <button id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg text-white">
+        <button id="copyBtn" onclick="copyReferCode()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg text-white">
           COPY
         </button>
       </div>
@@ -59,67 +58,63 @@
       </div>
     </div>
 
-    <button id="shareBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 py-4 rounded-2xl font-bold shadow-xl flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-white mb-10">
+    <button id="shareBtn" onclick="shareOnWhatsApp()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 py-4 rounded-2xl font-bold shadow-xl flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-white mb-10">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
       Invite via WhatsApp
     </button>
 </main>
 
 <script>
-    (function() {
-        async function initializeReferPage() {
-            const user = firebase.auth().currentUser;
-            const codeEl = document.getElementById("referCode");
-            const copyBtn = document.getElementById("copyBtn");
-            const shareBtn = document.getElementById("shareBtn");
+    // ফাংশনগুলো গ্লোবাল রাখা হয়েছে যাতে onclick কাজ করে
+    window.copyReferCode = function() {
+        const code = document.getElementById("referCode").textContent;
+        if(code === "LOADING..." || code === "ERROR") return;
+        navigator.clipboard.writeText(code);
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = "DONE!";
+        setTimeout(() => btn.textContent = "COPY", 2000);
+    };
 
-            if (!user) return;
+    window.shareOnWhatsApp = function() {
+        const code = document.getElementById("referCode").textContent;
+        if(code === "LOADING..." || code === "ERROR") return alert("Please wait for code to load");
+        const appLink = "https://demo-8bf.pages.dev/install"; 
+        const msg = `🔥 Join Our Tournament App & Win Big Rewards! \n\n✅ Use My Referral Code: *${code}* \n\nDownload Now: \n${appLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    (function() {
+        let attempts = 0;
+        async function loadReferData() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                if (attempts < 10) { // ১০ বার ট্রাই করবে (৫ সেকেন্ড)
+                    attempts++;
+                    setTimeout(loadReferData, 500);
+                }
+                return;
+            }
 
             try {
                 const db = firebase.firestore();
                 const snap = await db.collection("users").doc(user.uid).get();
-                
-                let code = "FFTW" + user.uid.substring(0, 4).toUpperCase(); // ডিফল্ট কোড
-                
+                let code = "";
+
                 if (snap.exists() && snap.data().referCode) {
                     code = snap.data().referCode;
-                } else if (user.email) {
-                    // ইমেইল থেকে কোড তৈরির পুরনো লজিক
-                    code = user.email.split('@')[0].substring(0, 6).toUpperCase();
+                } else {
+                    // ব্যাকআপ কোড জেনারেশন
+                    code = user.email ? user.email.split('@')[0].substring(0, 6).toUpperCase() : user.uid.substring(0, 6).toUpperCase();
                 }
-
-                if (codeEl) codeEl.textContent = code;
-
-                // কপি বাটন লজিক
-                if (copyBtn) {
-                    copyBtn.onclick = () => {
-                        navigator.clipboard.writeText(codeEl.textContent);
-                        copyBtn.textContent = "DONE!";
-                        copyBtn.classList.replace("bg-emerald-600", "bg-blue-600");
-                        setTimeout(() => { 
-                            copyBtn.textContent = "COPY"; 
-                            copyBtn.classList.replace("bg-blue-600", "bg-emerald-600");
-                        }, 2000);
-                    };
-                }
-
-                // শেয়ার বাটন লজিক
-                if (shareBtn) {
-                    shareBtn.onclick = () => {
-                        const appLink = "https://demo-8bf.pages.dev/install"; 
-                        const msg = `🔥 Join Our Tournament App & Win Big Rewards! \n\n✅ Use My Referral Code: *${codeEl.textContent}* \n\nDownload The App Right Now: \n${appLink}`;
-                        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-                    };
-                }
-
-            } catch (error) {
-                console.error("Refer Page Error:", error);
-                if (codeEl) codeEl.textContent = "ERROR";
+                
+                document.getElementById("referCode").textContent = code;
+            } catch (e) {
+                console.error(e);
+                document.getElementById("referCode").textContent = "ERROR";
             }
         }
 
-        // SPA এর জন্য টাইমার ব্যবহার করে লোড নিশ্চিত করা
-        setTimeout(initializeReferPage, 200);
-        setTimeout(initializeReferPage, 1000); // ব্যাকআপ রি-রান
+        // পেজ লোড হওয়ার সাথে সাথে এবং পরে কয়েকবার রান করবে
+        loadReferData();
     })();
 </script>
