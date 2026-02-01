@@ -1,87 +1,97 @@
 /* style.css - Central UI & Theme Control */
 :root {
     --bg-dark: #0f172a;       /* পুরো বডির ব্যাকগ্রাউন্ড */
-    --orange-grad: linear-gradient(to right, #ea580c, #f97316, #fb923c); /* হেডার কালার */
-    --nav-bg: rgba(15, 23, 42, 0.98); /* ন্যাভবার ব্যাকগ্রাউন্ড */
-    --active-color: #f97316;  /* অ্যাক্টিভ আইকন কালার */
-    --header-h: 65px;         /* হেডারের উচ্চতা */
-    --nav-h: 75px;            /* ন্যাভবারের উচ্চতা */
+    --orange-grad: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); /* প্রফেশনাল ডার্ক গ্র্যাডিয়েন্ট */
+    --nav-bg: rgba(15, 23, 42, 0.98); 
+    --active-color: #10b981;  /* অ্যাক্টিভ কালার এখন এমারেল্ড গ্রিন (ম্যাচ লিস্টের সাথে সিঙ্ক) */
+    --header-h: 60px;         /* হেডারের উচ্চতা ফিক্সড */
+    --nav-h: 70px;            /* ন্যাভবারের উচ্চতা ফিক্সড */
 }
 
-/* ১. বডি স্টাইল */
-html, body { 
-    background-color: var(--bg-dark) !important; 
-    color: white !important;
-    margin: 0; padding: 0;
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-}
-
-/* ২. কন্টেন্ট যাতে হেডার বা ন্যাভের নিচে না ঢোকে */
-main, .page-content {
-    padding-top: calc(var(--header-h) + 20px) !important;
-    padding-bottom: calc(var(--nav-h) + 20px) !important;
-    display: block;
+/* ১. গ্লোবাল রিসেট - এটি গ্যাপ রিমুভ করার জন্য সবচেয়ে জরুরি */
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-/* ৩. হেডার ডিজাইন */
+html, body { 
+    background-color: var(--bg-dark) !important; 
+    color: white !important;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ২. মেইন কন্টেন্ট লেআউট ফিক্স */
+main, #app-outlet {
+    /* অতিরিক্ত +20px সরিয়ে দিয়ে শুধু হেডারের মাপ রাখা হলো */
+    padding-top: var(--header-h) !important; 
+    padding-bottom: calc(var(--nav-h) + 10px) !important;
+    display: block;
+    width: 100%;
+}
+
+/* ৩. হেডার ডিজাইন - রিফ্রেশড লুক */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
-    background: var(--orange-grad) !important;
+    background: #0f172a !important; /* বডি ব্যাকগ্রাউন্ডের সাথে ম্যাচ */
     z-index: 10000;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    display: flex; align-items: center;
-    box-sizing: border-box;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex; 
+    align-items: center;
+    padding: 0 15px;
 }
 
 /* ৪. বটম ন্যাভবার ডিজাইন */
-.bottom-nav {
+.bottom-nav, nav {
     position: fixed !important;
     bottom: 0; left: 0; width: 100%;
     height: var(--nav-h);
-    background: var(--nav-bg) !important;
+    background: #1e293b !important;
     backdrop-filter: blur(15px);
-    display: flex; justify-content: space-around;
+    display: flex; 
+    justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(249, 115, 22, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 10000;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
 }
 
-/* ৫. ন্যাভবার আইটেম ও আইকন সাইজ ফিক্স */
-.nav-item {
+/* ৫. ন্যাভবার আইটেম */
+.nav-item, nav button {
     display: flex; 
     flex-direction: column; 
     align-items: center;
+    justify-content: center;
     color: #94a3b8; 
-    text-decoration: none; 
-    font-size: 11px;
-    width: 25%; /* ৪টি অপশনের জন্য সমান জায়গা */
-    transition: all 0.2s ease;
+    width: 25%;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
 }
 
-/* আইকনকে জোর করে ছোট করা */
-.nav-item img { 
-    width: 24px !important; 
-    height: 24px !important; 
-    min-width: 24px !important;
-    min-height: 24px !important;
-    margin-bottom: 3px; 
-    object-fit: contain; /* ছবি যাতে না চ্যাপ্টা হয় */
-    filter: brightness(0) invert(1); 
-    opacity: 0.7;
+/* আইকন সাইজ ও কালার কন্ট্রোল */
+.nav-item img, nav button img { 
+    width: 22px !important; 
+    height: 22px !important; 
+    object-fit: contain;
+    filter: brightness(0) invert(0.7); /* হালকা গ্রে লুক */
 }
 
-.nav-item.active { 
-    color: var(--active-color) !important;
-}
-
-.nav-item.active img { 
-    filter: invert(56%) sepia(86%) saturate(1638%) hue-rotate(346deg) brightness(101%) contrast(96%) !important;
+/* অ্যাক্টিভ আইকন স্টাইল */
+.nav-item.active img, nav button.active img { 
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(130deg) brightness(98%) contrast(92%) !important; /* Emerald Green */
     opacity: 1;
+    transform: translateY(-2px);
 }
 
-/* লোডিং স্পিনার */
-#loadingSpinner { background-color: var(--bg-dark) !important; }
+/* লোডার ব্যাকগ্রাউন্ড */
+#router-loader, #loadingSpinner { 
+    background-color: var(--bg-dark) !important; 
+    z-index: 9999;
+}
