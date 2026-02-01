@@ -1,37 +1,21 @@
 <style>
-    .match-card {
-      background: linear-gradient(145deg, #1e293b, #0f172a);
-      border-radius: 1.5rem;
+    /* তোমার পছন্দের সেই সুন্দর কার্ড ডিজাইন */
+    #matchCard { 
+      border-radius: 1.3rem; 
       border-left: 6px solid #10b981;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: linear-gradient(to bottom right, #1e293b, #0f172a);
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
     }
-    .info-box {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 1rem;
-      padding: 0.75rem;
-    }
-    .label-xs {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #94a3b8;
-      font-weight: 700;
-    }
-    .value-md {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #f1f5f9;
-    }
+    .es-value { font-weight: 800; color: #4ade80; }
+    .match-title { text-shadow: 0 2px 12px #08080866; }
 </style>
 
-<main class="max-w-md mx-auto px-4 py-6">
-    <h2 id="pageTitle" class="text-xl font-black text-emerald-400 mb-6 uppercase text-center tracking-widest">Matches</h2>
-    <div id="matchContainer" class="space-y-2">
-        <p class="text-center text-gray-500 py-10 animate-pulse">Fetching matches...</p>
-    </div>
+<main class="max-w-md mx-auto px-3 py-4">
+    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Matches</h2>
+    <div id="matchContainer" class="space-y-4">
+        </div>
 </main>
 
 <script type="module">
@@ -39,25 +23,26 @@
 
     (function() {
         const container = document.getElementById('matchContainer');
-        const title = document.getElementById('pageTitle');
+        const titleText = document.getElementById('pageTitle');
         const categoryId = localStorage.getItem('currentCat');
-        
+
         if (!categoryId) {
-            container.innerHTML = "<div class='text-center py-10'><p class='text-red-400 font-bold'>Category Not Selected!</p><button onclick='router.navigate(\"home\")' class='mt-4 text-emerald-500 underline'>Go Back</button></div>";
+            container.innerHTML = '<p class="text-center text-red-400 mt-10">Category Missing!</p>';
             return;
         }
 
         const titles = {
-            'soloc':'Solo Classic','solocs':'Solo CS',
-            'duoc':'Duo Classic','duocs':'Duo CS',
-            'squadc':'Squad Classic','squadcs':'Squad CS'
+            'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
+            'duoc': 'Duo Classic', 'duocs': 'Duo Clash Squad',
+            'squadc': 'Squad Classic', 'squadcs': 'Squad Clash Squad'
         };
-        title.innerText = titles[categoryId] || "Matches";
+        titleText.innerText = titles[categoryId.toLowerCase()] || "Matches";
 
+        // window.db ব্যবহার করে সরাসরি ডাটা আনা
         const q = collection(window.db, "allMatches");
 
         onSnapshot(q, (snapshot) => {
-            if(!document.getElementById('matchContainer')) return;
+            if (!document.getElementById('matchContainer')) return;
             container.innerHTML = '';
             let count = 0;
 
@@ -66,58 +51,34 @@
                 
                 if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase()) {
                     count++;
-                    const displayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
+                    const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                     
                     container.innerHTML += `
-                        <div class="match-card">
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="relative">
-                                    <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
-                                         class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500/20 shadow-inner">
-                                    <span class="absolute -top-2 -right-2 bg-emerald-500 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">LIVE</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-white leading-tight">${match.title || 'Classic Tournament'}</h3>
-                                    <p class="text-emerald-400 text-xs font-bold mt-1 uppercase tracking-tighter">🗺️ ${match.map || 'Bermuda Map'}</p>
-                                </div>
-                            </div>
+                        <div id="matchCard" class="relative overflow-hidden">
+                          <div class="flex items-center gap-3">
+                            <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
+                                 class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
+                            <div class="match-title text-gray-100 text-lg font-bold">${match.title || 'Tournament'}</div>
+                          </div>
+                          
+                          <div class="mt-4 space-y-1.5 text-sm">
+                            <div class="flex justify-between text-gray-400"><span>Entry Fee:</span><span class="es-value">₹${match.entry || 0}</span></div>
+                            <div class="flex justify-between text-gray-400"><span>Prize:</span><span class="es-value">₹${match.prize || 0}</span></div>
+                            <div class="flex justify-between text-gray-400"><span>Time:</span><span class="es-value">${matchDisplayTime}</span></div>
+                            <div class="flex justify-between text-gray-400"><span>Map:</span><span class="es-value">${match.map || 'Bermuda'}</span></div>
+                            <div class="flex justify-between text-gray-400"><span>Slots Left:</span><span class="es-value text-red-400">${match.slot || 0}</span></div>
+                          </div>
 
-                            <div class="info-box grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
-                                <div>
-                                    <p class="label-xs">Entry Fee</p>
-                                    <p class="value-md text-emerald-400">₹${match.entry || 0}</p>
-                                </div>
-                                <div>
-                                    <p class="label-xs">Prize Pool</p>
-                                    <p class="value-md text-yellow-400">₹${match.prize || 0}</p>
-                                </div>
-                                <div class="col-span-2 border-t border-white/5 pt-2 flex justify-between items-center">
-                                    <div>
-                                        <p class="label-xs">Match Time</p>
-                                        <p class="text-xs font-bold text-sky-300">${displayTime}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="label-xs">Slots Left</p>
-                                        <p class="value-md text-red-400">${match.slot || 0} / 48</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
-                                class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95 hover:brightness-110">
-                                Match Details
-                            </button>
+                          <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
+                            class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm">
+                            Match Details
+                          </button>
                         </div>`;
                 }
             });
 
-            if(count === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-20 bg-slate-900/50 rounded-3xl border border-dashed border-slate-700">
-                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" class="w-16 h-16 mx-auto opacity-20 grayscale mb-4">
-                        <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">No Active Matches</p>
-                        <p class="text-[10px] text-gray-600 mt-2">Check back later for new tournaments!</p>
-                    </div>`;
+            if (count === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 mt-20 italic font-bold">No active matches found!</p>';
             }
         });
     })();
