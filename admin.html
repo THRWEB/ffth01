@@ -7,27 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
   
-  <script>
-    // app-ui.js লোড হওয়ার আগে রিডাইরেক্ট বন্ধ করার ট্রিক
-    // এটি মেইন অ্যাপের স্বয়ংক্রিয় লগইন রিডাইরেক্ট ব্লক করবে
-    const originalHref = window.location.href;
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...window.location,
-        set href(url) {
-          if (url.includes('login.html') || url.includes('register.html')) {
-            console.log("Redirect blocked for Admin Panel");
-            return;
-          }
-          window.location.assign(url);
-        }
-      },
-      configurable: true
-    });
-  </script>
-
-  <script type="module" src="app-ui.js"></script>
-  
   <style>
     body { font-family: 'Poppins', sans-serif; background: #020617; color: white; }
     .glass { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; }
@@ -47,18 +26,18 @@
         <input type="text" id="adminUser" placeholder="Username">
         <input type="password" id="adminPass" placeholder="Password">
       </div>
-      <button id="btnLogin" class="w-full bg-emerald-600 py-4 rounded-2xl font-bold text-white shadow-xl">LOGIN</button>
-      <p id="loginError" class="text-red-500 text-xs hidden">Wrong credentials!</p>
+      <button id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold text-white shadow-xl transition-all active:scale-95">LOGIN</button>
+      <p id="loginError" class="text-red-500 text-xs hidden italic">Invalid Credentials!</p>
     </div>
   </div>
 
   <div id="admin-panel" class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
       <h1 class="text-3xl font-black">ADMIN CONTROL</h1>
-      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs">EXIT</button>
+      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs hover:bg-red-500 transition-colors">EXIT PANEL</button>
     </div>
 
-    <div class="flex gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit">
+    <div class="flex gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit border border-white/5">
       <button onclick="switchTab('match-tab', this)" class="tab-btn active">Matches</button>
       <button onclick="switchTab('payment-tab', this)" class="tab-btn">Deposits</button>
       <button onclick="switchTab('withdraw-tab', this)" class="tab-btn">Withdrawals</button>
@@ -67,35 +46,54 @@
     <div id="match-tab" class="tab-content">
       <div class="glass p-8">
         <h2 class="text-xl font-bold mb-6 text-emerald-400">Add New Match</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <input type="text" id="mTitle" placeholder="Match Title">
           <select id="mCat">
             <option value="soloc">Solo Classic</option>
             <option value="solocs">Solo CS</option>
+            <option value="duoc">Duo Classic</option>
+            <option value="squadc">Squad Classic</option>
           </select>
           <input type="number" id="mEntry" placeholder="Entry Fee (₹)">
           <input type="number" id="mPrize" placeholder="Prize Pool (₹)">
           <input type="number" id="mSlot" placeholder="Slots">
           <input type="text" id="mMap" placeholder="Map">
           <input type="datetime-local" id="mTime">
-          <button id="pubBtn" class="bg-emerald-600 py-3 rounded-xl font-bold">PUBLISH</button>
+          <button id="pubBtn" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">PUBLISH</button>
         </div>
       </div>
     </div>
 
     <div id="payment-tab" class="tab-content hidden">
-      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-sky-400">Deposits</h2><div id="payBody" class="space-y-4"></div></div>
+      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-sky-400">Add Money Requests</h2><div id="payBody" class="space-y-4"></div></div>
     </div>
 
     <div id="withdraw-tab" class="tab-content hidden">
-      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-orange-400">Withdrawals</h2><div id="withdrawBody" class="space-y-4"></div></div>
+      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-orange-400">Withdrawal Requests</h2><div id="withdrawBody" class="space-y-4"></div></div>
     </div>
   </div>
 
   <script type="module">
+    // সরাসরি ফায়ারবেস কানেক্ট করছি যাতে app-ui.js এর রিডাইরেক্ট লজিক কাজ না করতে পারে
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1vzDj_3-tymzU-EomjCIlbMhsoSnDiTU",
+      authDomain: "ffth01.firebaseapp.com",
+      projectId: "ffth01",
+      storageBucket: "ffth01.firebasestorage.app",
+      messagingSenderId: "879174774047",
+      appId: "1:879174774047:web:386e99dd5c947381c4142a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const LOGIN_USER = "ffth01";
     const LOGIN_PASS = "123456";
 
+    // লগইন চেক
     document.getElementById('btnLogin').onclick = () => {
         const u = document.getElementById('adminUser').value;
         const p = document.getElementById('adminPass').value;
@@ -111,7 +109,7 @@
         if(sessionStorage.getItem('isAdminAuth') === 'true') {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
-            runFirebaseLogic();
+            startDashboard();
         }
     }
 
@@ -120,11 +118,8 @@
         window.location.reload();
     };
 
-    async function runFirebaseLogic() {
-        const db = window.db;
-        if (!db) { setTimeout(runFirebaseLogic, 500); return; }
-        const { collection, addDoc, onSnapshot, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
-
+    function startDashboard() {
+        // ম্যাচ পাবলিশ
         document.getElementById('pubBtn').onclick = async () => {
             try {
                 await addDoc(collection(db, "allMatches"), {
@@ -135,29 +130,46 @@
                     slot: Number(document.getElementById('mSlot').value),
                     map: document.getElementById('mMap').value,
                     time: document.getElementById('mTime').value ? new Date(document.getElementById('mTime').value) : serverTimestamp(),
-                    status: "open", image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
+                    status: "open", 
+                    image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
                 });
-                alert("Live!");
+                alert("Match Published!");
             } catch (e) { alert(e.message); }
         };
 
+        // রিয়েল-টাইম ডিপোজিট
         onSnapshot(collection(db, "addMoneyRequests"), s => {
             const body = document.getElementById('payBody'); body.innerHTML = '';
+            if(s.empty) body.innerHTML = '<p class="text-gray-500 text-center">No requests</p>';
             s.forEach(d => {
                 const r = d.data();
-                body.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="text-emerald-400">₹${r.amount}</p><p class="text-xs">${r.email}</p></div><div class="flex gap-2"><a href="${r.proofUrl}" target="_blank" class="bg-sky-600 px-3 py-1 rounded text-[10px]">PROOF</a><button onclick="approveDeposit('${d.id}','${r.uid}',${r.amount})" class="bg-emerald-600 px-3 py-1 rounded text-[10px]">APPROVE</button></div></div>`;
+                body.innerHTML += `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div><p class="text-emerald-400 font-bold">₹${r.amount}</p><p class="text-[10px] text-gray-400">${r.email}</p></div>
+                    <div class="flex gap-2">
+                        <a href="${r.proofUrl}" target="_blank" class="bg-sky-600/20 text-sky-400 px-3 py-1 rounded text-[10px] font-bold">PROOF</a>
+                        <button onclick="approveDeposit('${d.id}','${r.uid}',${r.amount})" class="bg-emerald-600 px-3 py-1 rounded text-[10px] font-bold">APPROVE</button>
+                    </div>
+                </div>`;
             });
         });
 
+        // রিয়েল-টাইম উইথড্র
         onSnapshot(collection(db, "withdrawalRequests"), s => {
             const body = document.getElementById('withdrawBody'); body.innerHTML = '';
+            if(s.empty) body.innerHTML = '<p class="text-gray-500 text-center">No requests</p>';
             s.forEach(d => {
                 const r = d.data();
-                body.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="text-orange-400">₹${r.amount}</p><p class="text-xs font-mono">${r.upi}</p></div><button onclick="deleteReq('withdrawalRequests','${d.id}')" class="bg-emerald-600 px-4 py-1 rounded text-[10px]">DONE</button></div>`;
+                body.innerHTML += `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                    <div><p class="text-orange-400 font-bold">₹${r.amount}</p><p class="text-[10px] font-mono">${r.upi}</p></div>
+                    <button onclick="deleteReq('withdrawalRequests','${d.id}')" class="bg-emerald-600 px-4 py-1 rounded text-[10px] font-bold">DONE</button>
+                </div>`;
             });
         });
     }
 
+    // গ্লোবাল ফাংশন
     window.switchTab = (id, btn) => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -166,20 +178,20 @@
     };
 
     window.approveDeposit = async (id, uid, amt) => {
-        const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
         try {
-            const snap = await getDoc(doc(window.db, "users", uid));
+            const userRef = doc(db, "users", uid);
+            const snap = await getDoc(userRef);
             if(snap.exists()){
-                await updateDoc(doc(window.db, "users", uid), { deposit: Number(snap.data().deposit || 0) + Number(amt) });
-                await deleteDoc(doc(window.db, "addMoneyRequests", id));
-                alert("Success!");
+                const current = Number(snap.data().deposit || 0);
+                await updateDoc(userRef, { deposit: current + Number(amt) });
+                await deleteDoc(doc(db, "addMoneyRequests", id));
+                alert("Deposit Approved!");
             }
         } catch(e) { alert(e.message); }
     };
 
     window.deleteReq = async (col, id) => {
-        const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
-        if(confirm("Sure?")) await deleteDoc(doc(window.db, col, id));
+        if(confirm("Confirm action?")) await deleteDoc(doc(db, col, id));
     };
 
     initPanelAccess();
