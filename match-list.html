@@ -6,104 +6,72 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
     .es-value { font-weight: 800; color: #4ade80; }
-    .match-title { text-shadow: 0 2px 12px #08080866; }
 </style>
 
 <main class="max-w-md mx-auto px-3 py-4">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Matches</h2>
+    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center">Matches</h2>
     <div id="matchContainer" class="space-y-4">
-        </div>
+        <p class="text-center text-gray-500 py-10">Searching for matches...</p>
+    </div>
 </main>
 
-<script type="module">
-    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+<script>
+    (async function() {
+        // ১. ক্যাটাগরি আইডি নেওয়া
+        const params = new URLSearchParams(window.location.search);
+        const categoryId = params.get('cat') || window.currentCategory;
 
-    (function() {
-        // ফায়ারবেস অ্যাপটি খুঁজে নেওয়া (app-ui.js অলরেডি ইনিশিয়ালাইজ করেছে)
-        let app;
-        try {
-            app = getApp();
-        } catch (e) {
-            // যদি না পায় তবে নতুন কনফিগ দিয়ে ব্যাকআপ ইনিশিয়ালাইজ (তোমার ffth01 কনফিগ)
-            const firebaseConfig = {
-              apiKey: "AIzaSyB1vzDj_3-tymzU-EomjCIlbMhsoSnDiTU",
-              authDomain: "ffth01.firebaseapp.com",
-              projectId: "ffth01",
-              storageBucket: "ffth01.firebasestorage.app",
-              messagingSenderId: "879174774047",
-              appId: "1:879174774047:web:386e99dd5c947381c4142a"
-            };
-            app = initializeApp(firebaseConfig);
+        if (!categoryId) {
+            document.getElementById('matchContainer').innerHTML = "<p class='text-center text-red-400'>No Category Selected!</p>";
+            return;
         }
 
-        const db = getFirestore(app);
-        const params = new URLSearchParams(window.location.search);
-        let categoryId = params.get('cat') || window.currentCategory;
-
+        // ২. ফায়ারবেস সার্ভিস চেক (app-ui.js থেকে আসা)
+        const db = firebase.firestore();
+        
         const titles = {
             'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
             'duoc': 'Duo Classic', 'duocs': 'Duo Clash Squad',
             'squadc': 'Squad Classic', 'squadcs': 'Squad Clash Squad'
         };
+        document.getElementById('pageTitle').innerText = titles[categoryId] || "Matches";
 
-        const pageTitle = document.getElementById('pageTitle');
-        const container = document.getElementById('matchContainer');
+        // ৩. রিয়েল-টাইম ডাটা ফেচিং
+        db.collection("allMatches").onSnapshot((snapshot) => {
+            const container = document.getElementById('matchContainer');
+            if(!container) return; // ইউজার অন্য পেজে চলে গেলে বন্ধ হবে
 
-        if (categoryId) {
-            pageTitle.innerText = titles[categoryId.toLowerCase()] || "Matches";
-            
-            // ফিল্টার করা কুয়েরি (সরাসরি ক্যাটাগরি অনুযায়ী ডাটা আনা)
-            const q = collection(db, "allMatches");
+            container.innerHTML = '';
+            let count = 0;
 
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                // SPA চেক: কন্টেইনার না থাকলে লিসেনার বন্ধ
-                if (!document.getElementById('matchContainer')) {
-                    unsubscribe();
-                    return;
-                }
-
-                container.innerHTML = ''; 
-                let matchCount = 0;
-
-                snapshot.forEach((docSnap) => {
-                    const match = docSnap.data();
+            snapshot.forEach((doc) => {
+                const match = doc.data();
+                if (match.category && match.category.toLowerCase() === categoryId.toLowerCase()) {
+                    count++;
+                    const time = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                     
-                    // ক্যাটাগরি ম্যাচিং চেক
-                    if(match.category && match.category.toString().toLowerCase() === categoryId.toLowerCase()) {
-                        matchCount++;
-                        const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
-                        
-                        container.innerHTML += `
-                            <div id="matchCard" class="px-4 pt-3 pb-4 mb-4 relative overflow-hidden">
-                                <div class="flex items-center gap-3">
-                                    <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
-                                         class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
-                                    <div class="match-title text-gray-100 text-lg font-bold mt-1">${match.title || 'Tournament'}</div>
-                                </div>
-                                
-                                <div class="mt-4 space-y-1.5 text-sm">
-                                    <div class="flex justify-between"><span>Entry Fee:</span><span class="es-value">₹${match.entry || 0}</span></div>
-                                    <div class="flex justify-between"><span>Prize:</span><span class="es-value">₹${match.prize || 0}</span></div>
-                                    <div class="flex justify-between"><span>Time:</span><span class="es-value">${matchDisplayTime}</span></div>
-                                    <div class="flex justify-between"><span>Map:</span><span class="es-value">${match.map || 'Bermuda'}</span></div>
-                                    <div class="flex justify-between"><span>Slots Left:</span><span class="es-value">${match.slot || 0}</span></div>
-                                </div>
-
-                                <button onclick="window.currentMatchId='${docSnap.id}'; router.navigate('match-details')" 
-                                    class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg active:scale-95 uppercase text-sm">
-                                    Match Details
-                                </button>
-                            </div>`;
-                    }
-                });
-
-                if (matchCount === 0) {
-                    container.innerHTML = '<div class="text-center py-20 text-gray-500">No active matches found for this category.</div>';
+                    container.innerHTML += `
+                        <div id="matchCard" class="px-4 pt-3 pb-4 mb-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${match.image}" class="w-14 h-14 rounded-lg object-cover border border-emerald-500/30">
+                                <div class="text-white font-bold">${match.title}</div>
+                            </div>
+                            <div class="mt-4 space-y-1 text-sm text-gray-400">
+                                <div class="flex justify-between"><span>Entry:</span><span class="es-value">₹${match.entry}</span></div>
+                                <div class="flex justify-between"><span>Prize:</span><span class="es-value">₹${match.prize}</span></div>
+                                <div class="flex justify-between"><span>Time:</span><span class="es-value">${time}</span></div>
+                            </div>
+                            <button onclick="window.currentMatchId='${doc.id}'; router.navigate('match-details')" 
+                                class="w-full mt-4 bg-emerald-500 py-2.5 rounded-xl font-bold text-white text-sm">
+                                VIEW DETAILS
+                            </button>
+                        </div>`;
                 }
             });
-        } else {
-            container.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Category not selected!</div>';
-        }
+
+            if (count === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-10">No active matches for ${titles[categoryId]}</p>`;
+            }
+        });
     })();
 </script>
