@@ -1,22 +1,49 @@
-<main class="max-w-md mx-auto px-3 py-4">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 text-center">Matches</h2>
-    <div id="matchContainer" class="space-y-4">
-        <p class="text-center text-gray-500 py-10">Searching matches...</p>
+<style>
+    .match-card {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border-radius: 1.5rem;
+      border-left: 6px solid #10b981;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .info-box {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 1rem;
+      padding: 0.75rem;
+    }
+    .label-xs {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+    .value-md {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+</style>
+
+<main class="max-w-md mx-auto px-4 py-6">
+    <h2 id="pageTitle" class="text-xl font-black text-emerald-400 mb-6 uppercase text-center tracking-widest">Matches</h2>
+    <div id="matchContainer" class="space-y-2">
+        <p class="text-center text-gray-500 py-10 animate-pulse">Fetching matches...</p>
     </div>
 </main>
 
 <script type="module">
-    // app-ui.js থেকে আসা window.db ব্যবহার করার জন্য মডিউল ইমপোর্ট
     import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     (function() {
         const container = document.getElementById('matchContainer');
         const title = document.getElementById('pageTitle');
-        
         const categoryId = localStorage.getItem('currentCat');
         
         if (!categoryId) {
-            container.innerHTML = "<p class='text-center text-red-400'>No Category Selected!</p>";
+            container.innerHTML = "<div class='text-center py-10'><p class='text-red-400 font-bold'>Category Not Selected!</p><button onclick='router.navigate(\"home\")' class='mt-4 text-emerald-500 underline'>Go Back</button></div>";
             return;
         }
 
@@ -27,7 +54,6 @@
         };
         title.innerText = titles[categoryId] || "Matches";
 
-        // window.db ব্যবহার করে Firestore কানেক্ট করা
         const q = collection(window.db, "allMatches");
 
         onSnapshot(q, (snapshot) => {
@@ -38,37 +64,48 @@
             snapshot.forEach((doc) => {
                 const match = doc.data();
                 
-                // Firestore-এ category ফিল্ডের ভ্যালু check করা
                 if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase()) {
                     count++;
                     const displayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                     
                     container.innerHTML += `
-                        <div style="background:#1e293b; border-left:6px solid #10b981; padding:15px; border-radius:15px; margin-bottom:15px; border-top:1px solid rgba(255,255,255,0.05);">
-                            <div class="flex items-center gap-3">
-                                <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" style="width:55px; height:55px; border-radius:12px; object-fit:cover; border:1px solid #10b981;">
+                        <div class="match-card">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="relative">
+                                    <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
+                                         class="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500/20 shadow-inner">
+                                    <span class="absolute -top-2 -right-2 bg-emerald-500 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">LIVE</span>
+                                </div>
                                 <div>
-                                    <div class="font-bold text-white text-lg">${match.title || 'Classic Match'}</div>
-                                    <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">${match.map || 'Bermuda'}</div>
+                                    <h3 class="text-lg font-bold text-white leading-tight">${match.title || 'Classic Tournament'}</h3>
+                                    <p class="text-emerald-400 text-xs font-bold mt-1 uppercase tracking-tighter">🗺️ ${match.map || 'Bermuda Map'}</p>
                                 </div>
                             </div>
-                            <div class="flex justify-between text-sm text-gray-300 mt-4 bg-black/20 p-2 rounded-lg">
-                                <div class="text-center flex-1 border-r border-white/10">
-                                    <p class="text-[10px] text-gray-500 uppercase">Entry</p>
-                                    <p class="font-bold text-emerald-400">₹${match.entry || 0}</p>
+
+                            <div class="info-box grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
+                                <div>
+                                    <p class="label-xs">Entry Fee</p>
+                                    <p class="value-md text-emerald-400">₹${match.entry || 0}</p>
                                 </div>
-                                <div class="text-center flex-1 border-r border-white/10">
-                                    <p class="text-[10px] text-gray-500 uppercase">Prize</p>
-                                    <p class="font-bold text-yellow-400">₹${match.prize || 0}</p>
+                                <div>
+                                    <p class="label-xs">Prize Pool</p>
+                                    <p class="value-md text-yellow-400">₹${match.prize || 0}</p>
                                 </div>
-                                <div class="text-center flex-1">
-                                    <p class="text-[10px] text-gray-500 uppercase">Slots</p>
-                                    <p class="font-bold text-sky-400">${match.slot || 0}</p>
+                                <div class="col-span-2 border-t border-white/5 pt-2 flex justify-between items-center">
+                                    <div>
+                                        <p class="label-xs">Match Time</p>
+                                        <p class="text-xs font-bold text-sky-300">${displayTime}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="label-xs">Slots Left</p>
+                                        <p class="value-md text-red-400">${match.slot || 0} / 48</p>
+                                    </div>
                                 </div>
                             </div>
+
                             <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
-                                class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl mt-4 font-black text-sm transition-all active:scale-95 shadow-lg">
-                                VIEW DETAILS
+                                class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-95 hover:brightness-110">
+                                Match Details
                             </button>
                         </div>`;
                 }
@@ -76,14 +113,12 @@
 
             if(count === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-20">
-                        <p class="text-gray-500 font-bold">No Active Matches Found</p>
-                        <p class="text-[10px] text-gray-600 mt-1 uppercase">Category: ${categoryId}</p>
+                    <div class="text-center py-20 bg-slate-900/50 rounded-3xl border border-dashed border-slate-700">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" class="w-16 h-16 mx-auto opacity-20 grayscale mb-4">
+                        <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">No Active Matches</p>
+                        <p class="text-[10px] text-gray-600 mt-2">Check back later for new tournaments!</p>
                     </div>`;
             }
-        }, (error) => {
-            console.error("Firestore Error:", error);
-            container.innerHTML = "<p class='text-center text-red-400'>Error connecting to database.</p>";
         });
     })();
 </script>
