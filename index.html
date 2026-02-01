@@ -1,126 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-  <title>FFTW</title>
-  
   <link rel="stylesheet" href="style.css">
-
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/kGmPVq0d/1768593114138.jpg" sizes="192x192">
-  <link rel="apple-touch-icon" href="https://i.postimg.cc/kGmPVq0d/1768593114138.jpg">
-  <link rel="manifest" href="/manifest.json">
-  
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
-  
-  <style>
-    /* এই পেজের জন্য স্পেশাল ডিজাইন (কার্ড এবং ব্যানার) */
-    .es-main-section {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-      border-radius: 1.3rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      border-left: 7px solid #ea580c; 
-      margin-bottom: 1rem;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: transform 0.2s;
-    }
-    .es-main-section:active { transform: scale(0.95); }
-    
-    .duo-section { border-left-color: #0ea5e9 !important; }
-    .squad-section { border-left-color: #fbbf24 !important; }
-
-    #cardsGrid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem; 
-      max-width: 480px;
-      margin: 1.5rem auto;
-    }
-    @media(min-width: 768px) {
-      #cardsGrid { grid-template-columns: 1fr 1fr 1fr; max-width: 900px; }
-    }
-    .card-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .promo-banner {
-      width: 100%;
-      border-radius: 1rem;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-    .promo-banner img { width: 100%; height: auto; display: block; }
-  </style>
 </head>
 
-<body>
-  
-  <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
-    <svg class="animate-spin h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-    </svg>
+<body class="bg-[#0f172a] text-white">
+
+  <header style="position:fixed; top:0; left:0; right:0; height:60px; z-index:1000; background:#0f172a; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; padding:0 1rem;">
+      <div style="width:100%; max-width:64rem; margin:0 auto; display:flex; justify-content:space-between; align-items:center;">
+          <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" id="nav-profile-img" style="width:38px; height:38px; border-radius:50%; border:2px solid white;">
+          <h1 style="font-size:18px; font-weight:800; letter-spacing:2px;">FFTW</h1>
+          <div id="walletDisplay" style="background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); font-size:13px; font-weight:700;">
+              ₹<span id="nav-wallet-amount">...</span>
+          </div>
+      </div>
+  </header>
+
+  <div id="router-loader" style="position:fixed; top:60px; bottom:70px; left:0; right:0; z-index:500; background:#0f172a; display:flex; align-items:center; justify-content:center; transition:opacity 0.3s;">
+      <div class="loader-rings" style="width:45px; height:45px; border:4px solid rgba(16,185,129,0.1); border-top-color:#10b981; border-radius:50%; animation:spin 1s linear infinite;"></div>
   </div>
 
-  <main class="px-4 md:px-6 max-w-4xl mx-auto">
-    <div class="promo-banner" onclick="window.open('https://www.youtube.com/', '_blank')">
-      <img src="https://i.postimg.cc/3WQyJmNY/1768402352957.jpg" alt="Join Our Community">
-    </div>
+  <main id="app-outlet" style="padding-top:70px; padding-bottom:80px; max-width:64rem; margin:0 auto; padding-left:1rem; padding-right:1rem;">
+      </main>
 
-    <div id="cardsGrid"></div>
-  </main>
+  <nav class="bottom-nav" style="position:fixed; bottom:0; left:0; right:0; height:70px; z-index:1000; background:#1e293b; display:flex; justify-content:space-around; align-items:center;">
+    <button onclick="router.navigate('home')" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" style="width:24px;"></button>
+    <button onclick="router.navigate('mymatches')" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" style="width:24px;"></button>
+    <button onclick="router.navigate('refer')" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" style="width:24px;"></button>
+    <button onclick="router.navigate('profile')" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" style="width:24px;"></button>
+  </nav>
+
+  <style>
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .nav-btn { opacity: 0.5; transition: 0.3s; }
+      .nav-btn.active { opacity: 1; }
+  </style>
 
   <script type="module" src="app-ui.js"></script>
-
-  <script type="module">
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
-    document.addEventListener("DOMContentLoaded", function() {
-      const spinner = document.getElementById('loadingSpinner');
-      const auth = getAuth();
-
-      const cardData = [
-        { url: "match-list.html?cat=soloc", section: "", label: "Solo:Classic", text: "orange-400", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
-        { url: "match-list.html?cat=solocs", section: "", label: "Solo:CS", text: "orange-400", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
-        { url: "match-list.html?cat=duoc", section: "duo-section", label: "Duo:Classic", text: "sky-400", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
-        { url: "match-list.html?cat=duocs", section: "duo-section", label: "Duo:CS", text: "sky-400", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
-        { url: "match-list.html?cat=squadc", section: "squad-section", label: "Squad:Classic", text: "yellow-400", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" },
-        { url: "match-list.html?cat=squadcs", section: "squad-section", label: "Squad:CS", text: "yellow-400", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" }
-      ];
-      
-      const grid = document.getElementById("cardsGrid");
-      grid.innerHTML = cardData.map(card => `
-        <section class="es-main-section mb-2 ${card.section}">
-          <img src="${card.img}" alt="${card.label}" class="w-full h-40 object-cover rounded-2xl shadow-md" />
-          <div class="p-3 text-center">
-            <h3 class="card-title text-xl font-bold text-${card.text}">${card.label}</h3>
-          </div>
-        </section>
-      `).join('');
-      
-      Array.from(grid.children).forEach((card, idx) => {
-        card.addEventListener('click', () => window.location.href = cardData[idx].url);
-      });
-
-      onAuthStateChanged(auth, user => {
-        if (user) {
-          if(spinner) {
-            spinner.style.opacity = '0';
-            setTimeout(() => spinner.style.display = 'none', 300);
-          }
-        } else {
-          window.location.href = "login.html";
-        }
-      });
-    });
-  </script>
 </body>
 </html>
