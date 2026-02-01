@@ -53,7 +53,10 @@
           <p class="font-bold text-yellow-400 text-sm mb-1 uppercase tracking-tighter">Scan to Pay</p>
           <p class="opacity-80">Amount: <span class="font-bold text-white text-sm">₹<span id="qrAmount"></span></span></p>
         </div>
-        <input type="file" id="proofFile" accept="image/*" class="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-xs text-gray-400">
+        <div class="text-left">
+           <label class="text-[10px] text-gray-400 font-bold ml-1 uppercase">Upload Payment Screenshot</label>
+           <input type="file" id="proofFile" accept="image/*" class="w-full bg-black/40 border border-white/10 rounded-xl p-2 text-xs text-gray-400 mt-1">
+        </div>
         <button id="paidBtn" disabled class="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-bold opacity-30 cursor-not-allowed text-sm">SUBMIT REQUEST</button>
       </div>
     </section>
@@ -88,27 +91,32 @@
 
 <script>
     (function() {
-        // ফায়ারবেস থেকে ডেটা রিয়েলটাইম আপডেট
-        const user = firebase.auth().currentUser;
-        if (user) {
-            const db = firebase.firestore();
-            db.collection("users").doc(user.uid).onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    const dep = data.deposit || 0;
-                    const win = data.winnings || 0;
-                    document.getElementById("walletTotal_page").innerHTML = `<img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-10 h-10 drop-shadow-lg"> ₹${dep + win}`;
-                    document.getElementById("depositAmount_page").textContent = `₹${dep}`;
-                    document.getElementById("winningsAmount_page").textContent = `₹${win}`;
-                }
-            });
-        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // রিয়েলটাইম ব্যালেন্স আপডেট
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        const dep = data.deposit || 0;
+                        const win = data.winnings || 0;
+                        document.getElementById("walletTotal_page").innerHTML = `<img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-10 h-10 drop-shadow-lg"> ₹${dep + win}`;
+                        document.getElementById("depositAmount_page").textContent = `₹${dep}`;
+                        document.getElementById("winningsAmount_page").textContent = `₹${win}`;
+                    }
+                });
+            }
+        });
 
         // Add Money UI লজিক
         const amountInput = document.getElementById("amountInput");
         const addBtn = document.getElementById("addBtn");
         const qrWrap = document.getElementById("qrWrap");
         const qrAmount = document.getElementById("qrAmount");
+        const paidBtn = document.getElementById("paidBtn");
+        const proofFile = document.getElementById("proofFile");
 
         addBtn.onclick = () => {
             const val = parseInt(amountInput.value);
@@ -121,13 +129,43 @@
             }
         };
 
-        // ফাইল সিলেক্ট করলে সাবমিট বাটন এনাবল করা
-        document.getElementById("proofFile").onchange = (e) => {
-            const btn = document.getElementById("paidBtn");
+        // ফাইল সিলেক্ট চেক
+        proofFile.onchange = (e) => {
             if(e.target.files.length > 0) {
-                btn.disabled = false;
-                btn.classList.remove("opacity-30", "cursor-not-allowed");
-                btn.classList.add("bg-emerald-500", "text-white");
+                paidBtn.disabled = false;
+                paidBtn.classList.remove("opacity-30", "cursor-not-allowed");
+                paidBtn.classList.add("bg-emerald-500", "text-white");
+            }
+        };
+
+        // সাবমিট রিকোয়েস্ট লজিক
+        paidBtn.onclick = async () => {
+            const user = auth.currentUser;
+            if (!user) return alert("Please login first");
+
+            paidBtn.disabled = true;
+            paidBtn.innerText = "UPLOADING...";
+
+            try {
+                // এখানে শুধু একটি ডামি রিকোয়েস্ট স্টোর করা হচ্ছে
+                // তোমার যদি স্টোরেজ থাকে তবে ফাইল আপলোড লজিক এখানে হবে
+                await db.collection("depositRequests").add({
+                    uid: user.uid,
+                    amount: parseInt(amountInput.value),
+                    status: "pending",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert("Request submitted successfully! It will be added after verification.");
+                qrWrap.classList.add("hidden");
+                addBtn.classList.remove("hidden");
+                amountInput.value = "";
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong!");
+            } finally {
+                paidBtn.disabled = false;
+                paidBtn.innerText = "SUBMIT REQUEST";
             }
         };
     })();
