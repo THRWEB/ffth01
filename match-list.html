@@ -1,57 +1,89 @@
 <main class="max-w-md mx-auto px-3 py-4">
     <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 text-center">Matches</h2>
-    <div id="matchContainer" class="space-y-4"></div>
+    <div id="matchContainer" class="space-y-4">
+        <p class="text-center text-gray-500 py-10">Searching matches...</p>
+    </div>
 </main>
 
-<script>
-(function() {
-    const container = document.getElementById('matchContainer');
-    const title = document.getElementById('pageTitle');
-    
-    // localStorage থেকে ক্যাটাগরি নেওয়া
-    const categoryId = localStorage.getItem('currentCat');
-    
-    if (!categoryId) {
-        container.innerHTML = "<p class='text-center'>No Category Found!</p>";
-        return;
-    }
+<script type="module">
+    // app-ui.js থেকে আসা window.db ব্যবহার করার জন্য মডিউল ইমপোর্ট
+    import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    // সরাসরি window.db ব্যবহার (যা app-ui.js থেকে আসছে)
-    const db = window.db; 
-    
-    // টাইটেল সেট করা
-    const titles = {'soloc':'Solo Classic','solocs':'Solo CS','duoc':'Duo Classic','duocs':'Duo CS','squadc':'Squad Classic','squadcs':'Squad CS'};
-    title.innerText = titles[categoryId] || "Matches";
+    (function() {
+        const container = document.getElementById('matchContainer');
+        const title = document.getElementById('pageTitle');
+        
+        const categoryId = localStorage.getItem('currentCat');
+        
+        if (!categoryId) {
+            container.innerHTML = "<p class='text-center text-red-400'>No Category Selected!</p>";
+            return;
+        }
 
-    // ডাটা আনা
-    firebase.firestore().collection("allMatches").onSnapshot((snapshot) => {
-        if(!document.getElementById('matchContainer')) return;
-        container.innerHTML = '';
-        let count = 0;
+        const titles = {
+            'soloc':'Solo Classic','solocs':'Solo CS',
+            'duoc':'Duo Classic','duocs':'Duo CS',
+            'squadc':'Squad Classic','squadcs':'Squad CS'
+        };
+        title.innerText = titles[categoryId] || "Matches";
 
-        snapshot.forEach((doc) => {
-            const match = doc.data();
-            if (match.category && match.category.toLowerCase() === categoryId.toLowerCase()) {
-                count++;
-                container.innerHTML += `
-                    <div style="background:#1e293b; border-left:6px solid #10b981; padding:15px; border-radius:15px; margin-bottom:15px;">
-                        <div class="flex items-center gap-3">
-                            <img src="${match.image}" style="width:50px; height:50px; border-radius:10px; object-fit:cover;">
-                            <div class="font-bold text-white">${match.title}</div>
-                        </div>
-                        <div class="flex justify-between text-sm text-gray-400 mt-3">
-                            <span>Entry: ₹${match.entry}</span>
-                            <span>Prize: ₹${match.prize}</span>
-                        </div>
-                        <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
-                            style="width:100%; background:#10b981; color:white; padding:10px; border-radius:10px; margin-top:10px; font-weight:bold;">
-                            VIEW DETAILS
-                        </button>
+        // window.db ব্যবহার করে Firestore কানেক্ট করা
+        const q = collection(window.db, "allMatches");
+
+        onSnapshot(q, (snapshot) => {
+            if(!document.getElementById('matchContainer')) return;
+            container.innerHTML = '';
+            let count = 0;
+
+            snapshot.forEach((doc) => {
+                const match = doc.data();
+                
+                // Firestore-এ category ফিল্ডের ভ্যালু check করা
+                if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase()) {
+                    count++;
+                    const displayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
+                    
+                    container.innerHTML += `
+                        <div style="background:#1e293b; border-left:6px solid #10b981; padding:15px; border-radius:15px; margin-bottom:15px; border-top:1px solid rgba(255,255,255,0.05);">
+                            <div class="flex items-center gap-3">
+                                <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" style="width:55px; height:55px; border-radius:12px; object-fit:cover; border:1px solid #10b981;">
+                                <div>
+                                    <div class="font-bold text-white text-lg">${match.title || 'Classic Match'}</div>
+                                    <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">${match.map || 'Bermuda'}</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-300 mt-4 bg-black/20 p-2 rounded-lg">
+                                <div class="text-center flex-1 border-r border-white/10">
+                                    <p class="text-[10px] text-gray-500 uppercase">Entry</p>
+                                    <p class="font-bold text-emerald-400">₹${match.entry || 0}</p>
+                                </div>
+                                <div class="text-center flex-1 border-r border-white/10">
+                                    <p class="text-[10px] text-gray-500 uppercase">Prize</p>
+                                    <p class="font-bold text-yellow-400">₹${match.prize || 0}</p>
+                                </div>
+                                <div class="text-center flex-1">
+                                    <p class="text-[10px] text-gray-500 uppercase">Slots</p>
+                                    <p class="font-bold text-sky-400">${match.slot || 0}</p>
+                                </div>
+                            </div>
+                            <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
+                                class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl mt-4 font-black text-sm transition-all active:scale-95 shadow-lg">
+                                VIEW DETAILS
+                            </button>
+                        </div>`;
+                }
+            });
+
+            if(count === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20">
+                        <p class="text-gray-500 font-bold">No Active Matches Found</p>
+                        <p class="text-[10px] text-gray-600 mt-1 uppercase">Category: ${categoryId}</p>
                     </div>`;
             }
+        }, (error) => {
+            console.error("Firestore Error:", error);
+            container.innerHTML = "<p class='text-center text-red-400'>Error connecting to database.</p>";
         });
-
-        if(count === 0) container.innerHTML = "<p class='text-center py-10 text-gray-500'>No Matches Found</p>";
-    });
-})();
+    })();
 </script>
