@@ -1,17 +1,18 @@
 /* style.css - Central UI & Theme Control (Emerald & Gold Edition) */
 :root {
-    /* ডার্ক ব্যাকগ্রাউন্ড - গভীর চারকোল ব্ল্যাক */
+    /* ডার্ক ব্যাকগ্রাউন্ড */
     --bg-dark: #05070a;       
     
-    /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট (বাটন ও হাইলাইটের জন্য) */
+    /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট */
     --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
     
     /* বটম ন্যাভবার ডিজাইন */
     --nav-bg: rgba(5, 7, 10, 0.98); 
-    --active-color: #10b981;  /* উজ্জ্বল এমারেল্ড গ্রিন একটিভ আইটেমের জন্য */
+    --active-color: #10b981; 
     
-    --header-h: 30px;         
-    --nav-h: 50px;            
+    /* Height calculation thik kora hoyeche */
+    --header-h: 60px;         
+    --nav-h: 70px;            
 }
 
 /* ১. ইউনিভার্সাল রিসেট */
@@ -26,19 +27,25 @@ html, body {
     background-color: var(--bg-dark) !important; 
     color: #f8fafc !important;
     font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
+    min-height: 100%;
+    /* Scroll fix korar jonno nicher line gulo important */
     overflow-x: hidden;
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch; /* Mobile smooth scroll */
 }
 
-/* ২. কন্টেন্ট এরিয়া */
+/* ২. কন্টেন্ট এরিয়া - Scroll Fix */
 main, .page-content {
-    padding-top: calc(var(--header-h) + 15px) !important;
-    padding-bottom: calc(var(--nav-h) + 25px) !important;
+    padding-top: calc(var(--header-h) + 10px) !important;
+    padding-bottom: calc(var(--nav-h) + 20px) !important;
     display: block;
     width: 100%;
+    flex: 1 0 auto; /* Content jate flexible thake */
 }
 
-/* ৩. হেডার ডিজাইন - ডার্ক লুক উইথ গোল্ডেন টাচ */
+/* ৩. হেডার ডিজাইন */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
@@ -48,10 +55,10 @@ header {
     z-index: 10000;
     display: flex; align-items: center;
     padding: 0 15px;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1); /* হালকা গ্রিন গ্লো */
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
 }
 
-/* ৪. বটম ন্যাভবার ডিজাইন - রাউন্ডেড স্টাইল */
+/* ৪. বটম ন্যাভবার ডিজাইন */
 .bottom-nav {
     position: fixed !important;
     bottom: 0; left: 0; width: 100%;
@@ -62,7 +69,7 @@ header {
     align-items: center;
     border-top: 1px solid rgba(16, 185, 129, 0.2);
     z-index: 10000;
-    padding-bottom: 8px;
+    padding-bottom: 10px; /* Mobile safe area padding */
     border-radius: 20px 20px 0 0;
 }
 
@@ -98,18 +105,21 @@ header {
     filter: drop-shadow(0 0 5px var(--active-color)) !important;
 }
 
-/* ৬. গোল্ডেন বাটন (পুরস্কার বা ম্যাচ ডিটেইলস এর জন্য) */
+/* ৬. গোল্ডেন বাটন */
 .btn-premium {
     background: var(--accent-grad);
     box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
     border: none;
-    color: #000; /* গোল্ডেন ব্যাকগ্রাউন্ডে কালো লেখা ভালো লাগে */
+    color: #000;
     font-weight: 900;
+    padding: 10px 20px;
     border-radius: 12px;
 }
 
-/* কার্ড ডিজাইন হাইলাইট (এমারেল্ড বর্ডার) */
+/* ৭. কার্ড ডিজাইন হাইলাইট */
 .card-highlight {
     border-left: 4px solid var(--active-color);
     background: #0f172a;
+    padding: 15px;
+    margin-bottom: 10px;
 }
