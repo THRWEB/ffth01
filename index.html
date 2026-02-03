@@ -3,124 +3,211 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>FFTW</title>
+  <title>FFTW - Blue Edition</title>
   
-  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet" />
   
   <style>
-    /* ১. ইউনিভার্সাল চওড়া সেটআপ */
-    html, body {
-        height: 100%;
-        width: 100vw !important;
+    /* style.css এর সমস্ত কোড এখানে নিয়ে আসা হয়েছে */
+    :root {
+        --bg-dark: #05070a;       
+        --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
+        --nav-bg: rgba(5, 7, 10, 0.98); 
+        
+        /* এখানে আমি নীল রং (Blue) সেট করে দিয়েছি */
+        --active-color: #3b82f6; 
+        
+        --header-h: 60px;         
+        --nav-h: 70px;            
+    }
+
+    * {
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        background-color: #0f172a;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body { 
+        background-color: var(--bg-dark) !important; 
+        color: #f8fafc !important;
         font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto; 
+        display: flex;
+        flex-direction: column;
+        -webkit-overflow-scrolling: touch;
     }
 
-    /* ২. কন্টেন্ট এরিয়া চওড়া করা */
-    #app-outlet {
-        width: 100% !important;
-        max-width: none !important;
+    /* কন্টেন্ট এরিয়া */
+    main, #app-outlet {
+        padding-top: calc(var(--header-h) + 15px) !important;
+        padding-bottom: calc(var(--nav-h) + 20px) !important;
         display: block;
-        min-height: calc(100vh - 130px);
-    }
-
-    /* ৩. কার্ড গ্রিড ডিসপ্লে অনুযায়ী চওড়া */
-    #cardsGrid { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 1rem; 
-        width: 100% !important; 
-        margin: 0; 
-        padding: 0px 10px !important;
-    }
-
-    .es-main-section { 
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
-        border-radius: 1rem; 
-        box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
-        border-left: 6px solid #ea580c; 
-        margin-bottom: 1rem; 
-        cursor: pointer; 
         width: 100%;
+        flex: 1 0 auto;
     }
 
-    .promo-banner { 
-        width: 100%; 
-        border-radius: 1rem; 
-        overflow: hidden; 
-        margin-bottom: 1.5rem; 
+    /* হেডার ডিজাইন */
+    header {
+        position: fixed !important;
+        top: 0; left: 0; width: 100%;
+        height: var(--header-h);
+        background: #0a0f16 !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05); 
+        z-index: 10000;
+        display: flex; align-items: center;
+        padding: 0 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
-    
+
+    /* বটম ন্যাভবার ডিজাইন */
+    .bottom-nav {
+        position: fixed !important;
+        bottom: 0; left: 0; width: 100%;
+        height: var(--nav-h);
+        background: var(--nav-bg) !important;
+        backdrop-filter: blur(25px);
+        display: flex; justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        z-index: 10000;
+        padding-bottom: 10px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    /* ন্যাভবার আইটেম */
+    .nav-item {
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        color: #64748b; 
+        text-decoration: none; 
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .nav-item img { 
+        width: 22px !important; 
+        height: 22px !important; 
+        margin-bottom: 4px; 
+        object-fit: contain;
+        filter: grayscale(1) brightness(0.7);
+        transition: 0.3s;
+    }
+
+    /* 🔥 অ্যাক্টিভ মোড (নীল রং) */
+    .nav-item.active { 
+        color: var(--active-color) !important;
+        transform: scale(1.1);
+    }
+
+    .nav-item.active img { 
+        filter: invert(41%) sepia(66%) saturate(3020%) hue-rotate(203deg) brightness(101%) contrast(96%) !important;
+        filter: drop-shadow(0 0 5px var(--active-color)) !important;
+    }
+
     /* লোডার অ্যানিমেশন */
-    .energy-core { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+    #router-loader { z-index: 20000; }
+    .energy-core { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
     .core-outer { position: absolute; width: 100%; height: 100%; border: 3px solid transparent; border-left-color: #ea580c; border-right-color: #ea580c; border-radius: 50%; animation: core-rotate 1.2s infinite; }
-    .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #0ea5e9; border-bottom-color: #0ea5e9; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
-    .core-center { width: 15px; height: 15px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #ea580c; animation: core-pulse 0.8s ease-in-out infinite alternate; }
+    .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #3b82f6; border-bottom-color: #3b82f6; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
+    .core-center { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #3b82f6; animation: core-pulse 0.8s ease-in-out infinite alternate; }
+    
     @keyframes core-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes core-rotate-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
     @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
-    body::-webkit-scrollbar { display: none; }
-    
-    /* Nav Button Active State override if needed */
-    .nav-btn:active { transform: scale(0.95); }
+    .btn-premium {
+        background: var(--accent-grad);
+        box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+        border: none; color: #000; font-weight: 900;
+        padding: 10px 20px; border-radius: 12px;
+    }
   </style>
 </head>
 
-<body class="bg-[#0f172a] text-white">
+<body>
 
-  <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
+  <header>
     <div class="flex items-center justify-between w-full">
       <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
-      <h1 class="text-lg font-black tracking-widest uppercase">FFTW</h1>
-      <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
+      <h1 class="text-lg font-black tracking-widest uppercase text-white">FFTW</h1>
+      <div id="walletDisplay" onclick="handleNavClick(null, 'wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer active:scale-95">
         <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
         <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
       </div>
     </div>
   </header>
 
-  <div id="router-loader" class="fixed inset-0 z-[500] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300">
+  <div id="router-loader" class="fixed inset-0 bg-[#05070a] flex flex-col items-center justify-center transition-opacity duration-300">
       <div class="energy-core">
           <div class="core-outer"></div>
           <div class="core-inner"></div>
           <div class="core-center"></div>
       </div>
-      <p class="mt-10 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
+      <p class="mt-8 text-[10px] font-bold tracking-[0.4em] text-gray-500 uppercase animate-pulse">Initializing..</p>
   </div>
 
-  <main id="app-outlet" class="pt-[75px] pb-[85px] w-full">
+  <main id="app-outlet">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
-    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Home</span>
+  <nav class="bottom-nav">
+    <button onclick="handleNavClick(this, 'home')" class="nav-item active">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="Home">
+        <span>Home</span>
     </button>
 
-    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Matches</span>
+    <button onclick="handleNavClick(this, 'mymatches')" class="nav-item">
+        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" alt="Matches">
+        <span>Matches</span>
     </button>
 
-    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Refer</span>
+    <button onclick="handleNavClick(this, 'refer')" class="nav-item">
+        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" alt="Refer">
+        <span>Refer</span>
     </button>
 
-    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Profile</span>
+    <button onclick="handleNavClick(this, 'profile')" class="nav-item">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" alt="Profile">
+        <span>Profile</span>
     </button>
-    
   </nav>
+
+  <script>
+    // ক্লিক করলে নীল রং করার ফাংশন
+    function handleNavClick(element, routeName) {
+        if (element) {
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Router Navigation Logic
+        if (typeof router !== 'undefined' && router.navigate) {
+            router.navigate(routeName);
+        }
+    }
+
+    // লোডার লুকানোর ফাংশন
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const loader = document.getElementById('router-loader');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
+        }, 1200);
+    });
+  </script>
 
   <script type="module" src="app-ui.js"></script>
 </body>
