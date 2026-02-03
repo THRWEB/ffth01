@@ -13,13 +13,14 @@
     /* ১. ইউনিভার্সাল চওড়া সেটআপ */
     html, body {
         height: 100%;
-        width: 100vw !important; /* ডিসপ্লের পুরো চওড়া */
+        width: 100vw !important;
         margin: 0;
         padding: 0;
         overflow-x: hidden;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
         background-color: #0f172a;
+        font-family: 'Poppins', sans-serif;
     }
 
     /* ২. কন্টেন্ট এরিয়া চওড়া করা */
@@ -37,7 +38,7 @@
         gap: 1rem; 
         width: 100% !important; 
         margin: 0; 
-        padding: 0px 10px !important; /* দুই পাশে হালকা গ্যাপ সুন্দর দেখানোর জন্য */
+        padding: 0px 10px !important;
     }
 
     .es-main-section { 
@@ -67,6 +68,9 @@
     @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
     body::-webkit-scrollbar { display: none; }
+    
+    /* Nav Button Active State override if needed */
+    .nav-btn:active { transform: scale(0.95); }
   </style>
 </head>
 
@@ -95,19 +99,28 @@
   <main id="app-outlet" class="pt-[75px] pb-[85px] w-full">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5">
-    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex justify-center">
-        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6">
+  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
+    
+    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 text-emerald-400">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Home</span>
     </button>
-    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex justify-center opacity-50">
-        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6">
+
+    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Matches</span>
     </button>
-    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex justify-center opacity-50">
-        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6">
+
+    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Refer</span>
     </button>
-    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex justify-center opacity-50">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6">
+
+    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Profile</span>
     </button>
+    
   </nav>
 
   <script type="module" src="app-ui.js"></script>
