@@ -23,14 +23,12 @@
         font-family: 'Poppins', sans-serif;
     }
 
-    /* ২. মেইন কন্টেন্ট এরিয়া (যেখানে কার্ডগুলো লোড হবে) */
     #app-outlet {
         width: 100%;
         display: block;
         min-height: calc(100vh - 130px);
     }
 
-    /* স্ক্রলবার হাইড করা */
     body::-webkit-scrollbar { display: none; }
     
     /* লোডার অ্যানিমেশন */
@@ -44,7 +42,8 @@
     @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
     /* Bottom Nav Buttons */
-    .nav-btn:active { transform: scale(0.95); }
+    .nav-btn { transition: all 0.3s ease; }
+    .nav-btn:active { transform: scale(0.9); }
     .nav-btn.active {
         opacity: 1 !important;
         color: #3b82f6 !important;
@@ -63,7 +62,7 @@
       <h1 class="text-lg font-black tracking-widest uppercase">FFTW</h1>
       <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer">
         <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
-        <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
+        <span id="nav-wallet-amount" class="text-sm font-bold tracking-tight">₹...</span>
       </div>
     </div>
   </header>
@@ -77,27 +76,27 @@
       <p class="mt-10 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
   </div>
 
-  <main id="app-outlet" class="pt-[75px] pb-[85px]">
+  <main id="app-outlet" class="pt-[75px] pb-[85px] min-h-screen">
       </main>
 
   <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
     
-    <button onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-all">
+    <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Home</span>
     </button>
 
-    <button onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-all">
+    <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Matches</span>
     </button>
 
-    <button onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-all">
+    <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Refer</span>
     </button>
 
-    <button onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-all">
+    <button data-route="profile" onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Profile</span>
     </button>
@@ -105,10 +104,27 @@
   </nav>
 
   <script>
+    // নেভিগেশন ক্লিক হ্যান্ডলার
     function handleNavClick(clickedBtn) {
+        if(!clickedBtn) return;
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
         clickedBtn.classList.add('active');
     }
+
+    // রিফ্রেশ করলে যেন হোম পেজে ফিরে না যায় বা সাদা না হয়ে যায় তার জন্য লজিক
+    window.addEventListener('load', () => {
+        const currentPath = window.location.hash.replace('#', '') || 'home';
+        const activeBtn = document.querySelector(`.nav-btn[data-route="${currentPath}"]`);
+        if(activeBtn) handleNavClick(activeBtn);
+        
+        // লোডার হ্যান্ডলিং
+        setTimeout(() => {
+            document.getElementById('router-loader').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('router-loader').style.display = 'none';
+            }, 300);
+        }, 1000);
+    });
   </script>
 
   <script type="module" src="app-ui.js"></script>
