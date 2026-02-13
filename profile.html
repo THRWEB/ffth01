@@ -5,95 +5,152 @@
       border: 1px solid rgba(16, 185, 129, 0.2);
       border-radius: 1.3rem;
     }
-    /* মোডাল ডিজাইন */
+    /* Modal Design (Shared for Support and Social) */
     .support-modal {
       position: fixed; left: 0; top: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       display: none; align-items: center;
       justify-content: center; z-index: 2000;
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(8px);
     }
     .support-modal.active { display: flex; }
     .white-icon { filter: brightness(0) invert(1); }
+    
+    /* Social Button Styles */
+    .social-link-btn {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+    .social-link-btn:hover {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10b981;
+        transform: translateX(5px);
+    }
+    .social-icon { width: 24px; height: 24px; object-fit: contain; }
 </style>
 
 <div id="supportModal" class="support-modal">
-    <div class="bg-gray-900 rounded-2xl p-7 text-center w-[85%] max-w-xs shadow-2xl border border-emerald-500">
-      <h3 class="text-lg font-bold text-emerald-400 mb-3">Support</h3>
-      <p class="text-sm font-semibold mb-4 text-white">Insta Username:</p>
-      <input type="text" id="supportNumberInput" value="abhinav_rai_93" readonly class="w-full mb-4 px-3 py-2 rounded text-gray-900 font-semibold bg-emerald-100 text-center"/>
-      <button id="copySupportBtn" class="px-4 py-2 rounded font-semibold bg-emerald-600 hover:bg-emerald-700 text-white w-full mb-2">Copy Username</button>
-      <button id="closeSupportBtn" class="px-4 py-2 rounded font-semibold bg-gray-700 hover:bg-gray-800 text-white w-full">Close</button>
+    <div class="bg-gray-900 rounded-2xl p-7 text-center w-[85%] max-w-xs shadow-2xl border border-emerald-500/50">
+      <h3 class="text-lg font-bold text-emerald-400 mb-3 uppercase tracking-wider">Support</h3>
+      <p class="text-sm font-semibold mb-4 text-gray-300">Insta Username:</p>
+      <input type="text" id="supportNumberInput" value="abhinav_rai_93" readonly class="w-full mb-4 px-3 py-2 rounded text-gray-900 font-bold bg-emerald-100 text-center outline-none"/>
+      <button id="copySupportBtn" class="px-4 py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 transition-colors text-white w-full mb-3 shadow-lg shadow-emerald-900/50">Copy Username</button>
+      <button id="closeSupportBtn" class="px-4 py-2 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-colors text-white w-full">Close</button>
+    </div>
+</div>
+
+<div id="socialModal" class="support-modal">
+    <div class="bg-gray-900 rounded-2xl p-6 text-center w-[85%] max-w-xs shadow-2xl border border-emerald-500/50 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+        
+        <h3 class="text-lg font-bold text-white mb-1">Join Community</h3>
+        <p class="text-xs text-gray-400 mb-5">Stay updated with our latest tournaments</p>
+        
+        <div class="space-y-2">
+            <button class="social-link-btn" onclick="alert('Link coming soon!')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" class="social-icon">
+                <span>YouTube</span>
+            </button>
+            
+            <button class="social-link-btn" onclick="alert('Link coming soon!')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" class="social-icon">
+                <span>Instagram</span>
+            </button>
+            
+            <button class="social-link-btn" onclick="alert('Link coming soon!')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" class="social-icon">
+                <span>Telegram</span>
+            </button>
+            
+            <button class="social-link-btn" onclick="alert('Link coming soon!')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png" class="social-icon">
+                <span>Discord</span>
+            </button>
+        </div>
+
+        <button id="closeSocialBtn" class="mt-4 px-4 py-2 rounded-xl font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 w-full transition-colors border border-gray-700">Close</button>
     </div>
 </div>
 
 <main class="px-4 max-w-md mx-auto space-y-6 py-4">
     <div class="profile-card p-8 text-center shadow-2xl">
       <div class="relative inline-block">
-        <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg" />
-        <div class="absolute bottom-0 right-0 bg-emerald-500 p-1 rounded-full border-2 border-slate-900">
-           <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+        <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg shadow-emerald-900/30" />
+        <div class="absolute bottom-0 right-0 bg-emerald-500 p-1.5 rounded-full border-4 border-slate-900">
+           <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
         </div>
       </div>
-      <h2 id="displayUsername" class="text-2xl font-bold mt-4 text-white uppercase">Loading...</h2>
-      <p id="displayEmail" class="text-emerald-400/70 text-sm mt-1 italic">Fetching email...</p>
+      <h2 id="displayUsername" class="text-2xl font-black mt-4 text-white uppercase tracking-wide">Loading...</h2>
+      <p id="displayEmail" class="text-emerald-400/80 text-sm mt-1 italic font-medium">Fetching email...</p>
     </div>
 
     <div class="profile-card p-2">
       <div class="flex flex-col">
-        <button onclick="router.navigate('wallet')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button onclick="router.navigate('wallet')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-6 h-6" />
+            <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-6 h-6 group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">My Wallet</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
         
-        <button onclick="router.navigate('mymatches')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button onclick="router.navigate('mymatches')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6 h-6 white-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">Match History</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button onclick="window.open('https://youtube.com/@free_fire_tournament_warrior', '_blank')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button id="openSocial" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/4187/4187236.png" class="w-6 h-6 white-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/512/4187/4187236.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">Social Media</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button id="openSupport" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button id="openSupport" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/4526/4526832.png" class="w-6 h-6 white-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/512/4526/4526832.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">Support</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://i.postimg.cc/k4HJ4pNR/help.png" class="w-6 h-6 white-icon" />
+            <img src="https://i.postimg.cc/k4HJ4pNR/help.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">FAQs</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+        <button onclick="router.navigate('terms')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/3503/3503827.png" class="w-6 h-6 white-icon" />
+            <img src="https://cdn-icons-png.flaticon.com/512/3503/3503827.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">Terms & Conditions</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button id="logoutBtn" class="flex items-center justify-between p-4 hover:bg-red-500/10 transition-all rounded-xl">
+        <button id="logoutBtn" class="flex items-center justify-between p-4 hover:bg-red-500/10 transition-all rounded-xl group">
           <div class="flex items-center gap-4 text-red-400">
-            <img src="https://cdn-icons-png.flaticon.com/512/4400/4400629.png" class="w-6 h-6" style="filter: invert(41%) sepia(82%) saturate(3015%) hue-rotate(338deg) brightness(101%) contrast(101%);" />
-            <span class="font-semibold text-sm">Logout Account</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/4400/4400629.png" class="w-6 h-6 group-hover:scale-110 transition-transform" style="filter: invert(41%) sepia(82%) saturate(3015%) hue-rotate(338deg) brightness(101%) contrast(101%);" />
+            <span class="font-semibold text-sm group-hover:text-red-300">Logout Account</span>
           </div>
         </button>
       </div>
@@ -102,10 +159,10 @@
 
 <script>
     (function() {
-        // মোডাল হ্যান্ডেলিং
-        const modal = document.getElementById("supportModal");
-        document.getElementById("openSupport").onclick = () => modal.classList.add("active");
-        document.getElementById("closeSupportBtn").onclick = () => modal.classList.remove("active");
+        // --- SUPPORT MODAL ---
+        const supportModal = document.getElementById("supportModal");
+        document.getElementById("openSupport").onclick = () => supportModal.classList.add("active");
+        document.getElementById("closeSupportBtn").onclick = () => supportModal.classList.remove("active");
         
         document.getElementById("copySupportBtn").onclick = () => {
           const input = document.getElementById("supportNumberInput");
@@ -114,11 +171,15 @@
           alert("Username Copied!");
         };
 
-        // window.auth এবং window.db ব্যবহার করা (app-ui.js থেকে আসছে)
+        // --- SOCIAL MODAL (NEW) ---
+        const socialModal = document.getElementById("socialModal");
+        document.getElementById("openSocial").onclick = () => socialModal.classList.add("active");
+        document.getElementById("closeSocialBtn").onclick = () => socialModal.classList.remove("active");
+
+        // --- USER AUTH LOGIC ---
         const auth = window.auth;
         const db = window.db;
 
-        // ইউজার ডেটা সেট করা
         const user = auth ? auth.currentUser : null;
         if (user) {
             document.getElementById("displayEmail").textContent = user.email;
@@ -126,7 +187,6 @@
             document.getElementById("displayEmail").classList.remove('italic');
         }
 
-        // লগআউট লজিক (window.auth ব্যবহার করে)
         document.getElementById("logoutBtn").onclick = async () => {
           if(confirm("Are you sure you want to logout?")) {
             try {
