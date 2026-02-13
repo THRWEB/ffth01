@@ -1,21 +1,18 @@
-/* style.css - Central UI & Theme Control (Emerald & Gold Edition) */
+/* style.css - Emerald & Gold (The Floating Dock Edition) */
+
 :root {
-    /* ডার্ক ব্যাকগ্রাউন্ড */
     --bg-dark: #05070a;       
-    
-    /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট */
     --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
-    
-    /* বটম ন্যাভবার ডিজাইন */
-    --nav-bg: rgba(5, 7, 10, 0.98); 
+    --emerald-glow: rgba(16, 185, 129, 0.4);
+    --nav-bg: rgba(15, 23, 42, 0.85); /* Slightly lighter for glass effect */
     --active-color: #10b981; 
     
-    /* Height calculation thik kora hoyeche */
-    --header-h: 30px;         
-    --nav-h: 30px;            
+    /* Increased height for the floating look */
+    --header-h: 60px;         
+    --nav-h: 70px;            
 }
 
-/* ১. ইউনিভার্সাল রিসেট */
+/* 1. Universal Reset & Body */
 * {
     margin: 0;
     padding: 0;
@@ -24,102 +21,114 @@
 }
 
 html, body { 
-    background-color: var(--bg-dark) !important; 
-    color: #f8fafc !important;
+    background-color: var(--bg-dark); 
+    color: #f8fafc;
     font-family: 'Poppins', sans-serif;
-    min-height: 100%;
-    /* Scroll fix korar jonno nicher line gulo important */
+    min-height: 100vh;
     overflow-x: hidden;
-    overflow-y: auto; 
     display: flex;
     flex-direction: column;
-    -webkit-overflow-scrolling: touch; /* Mobile smooth scroll */
 }
 
-/* ২. কন্টেন্ট এরিয়া - Scroll Fix */
+/* 2. Main Content Adjustment */
 main, .page-content {
-    padding-top: calc(var(--header-h) + 10px) !important;
-    padding-bottom: calc(var(--nav-h) + 20px) !important;
-    display: block;
-    width: 100%;
-    flex: 1 0 auto; /* Content jate flexible thake */
+    padding-top: calc(var(--header-h) + 20px);
+    padding-bottom: calc(var(--nav-h) + 40px); /* More space for floating bar */
+    flex: 1;
 }
 
-/* ৩. হেডার ডিজাইন */
+/* 3. Modern Header */
 header {
-    position: fixed !important;
+    position: fixed;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
-    background: #0a0f16 !important;
-    border-bottom: 2px solid #1e293b; 
+    background: rgba(5, 7, 10, 0.8);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 10000;
     display: flex; align-items: center;
-    padding: 0 15px;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+    padding: 0 20px;
 }
 
-/* ৪. বটম ন্যাভবার ডিজাইন */
+/* 4. NEW: Floating Bottom Dock */
 .bottom-nav {
     position: fixed !important;
-    bottom: 0; left: 0; width: 100%;
+    bottom: 20px; /* Floats above the bottom edge */
+    left: 5%;
+    right: 5%;
+    width: 90%; 
     height: var(--nav-h);
     background: var(--nav-bg) !important;
-    backdrop-filter: blur(25px);
-    display: flex; justify-content: space-around;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex; 
+    justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     z-index: 10000;
-    padding-bottom: 10px; /* Mobile safe area padding */
-    border-radius: 20px 20px 0 0;
+    border-radius: 25px; /* Fully rounded edges */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                0 0 15px var(--emerald-glow);
 }
 
-/* ৫. ন্যাভবার আইটেম ও আইকন */
+/* 5. Nav Items & Interactions */
 .nav-item {
+    position: relative;
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    color: #475569; 
+    color: #94a3b8; 
     text-decoration: none; 
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .nav-item img { 
-    width: 24px !important; 
-    height: 24px !important; 
+    width: 22px; 
+    height: 22px; 
     margin-bottom: 4px; 
-    object-fit: contain;
-    filter: grayscale(1) opacity(0.5);
+    transition: transform 0.3s ease;
+    filter: grayscale(1) opacity(0.6);
 }
 
+/* The Active State "Pill" */
 .nav-item.active { 
     color: var(--active-color) !important;
-    transform: scale(1.1);
 }
 
 .nav-item.active img { 
-    filter: none !important; 
+    filter: drop-shadow(0 0 8px var(--active-color)) !important;
+    transform: translateY(-5px);
     opacity: 1;
-    filter: drop-shadow(0 0 5px var(--active-color)) !important;
 }
 
-/* ৬. গোল্ডেন বাটন */
-.btn-premium {
+/* 6. The "Golden Center" Button */
+/* Add a special class to your middle nav-item, e.g., class="nav-item center-btn" */
+.nav-item.center-btn {
     background: var(--accent-grad);
-    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
-    border: none;
-    color: #000;
-    font-weight: 900;
-    padding: 10px 20px;
-    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-top: -45px; /* Lifts it out of the bar */
+    border: 5px solid var(--bg-dark);
+    box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4);
+    justify-content: center;
 }
 
-/* ৭. কার্ড ডিজাইন হাইলাইট */
+.nav-item.center-btn img {
+    filter: brightness(0) !important; /* Makes icon black on gold */
+    margin-bottom: 0;
+    width: 28px;
+    height: 28px;
+}
+
+/* 7. Card Design */
 .card-highlight {
-    border-left: 4px solid var(--active-color);
-    background: #0f172a;
-    padding: 15px;
-    margin-bottom: 10px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #0f172a, #05070a);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
