@@ -1,152 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>FFTH - Emerald & Gold Edition</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  
-  <style>
-    /* --- CSS VARIABLES --- */
-    :root {
-        --bg-dark: #05070a;       
-        --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
-        --emerald-glow: rgba(16, 185, 129, 0.4);
-        --nav-bg: rgba(15, 23, 42, 0.9);
-        --active-color: #10b981; 
-        --header-h: 65px;         
-        --nav-h: 70px;            
-    }
-
-    /* --- UNIVERSAL RESET --- */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body { 
-        background-color: var(--bg-dark) !important; 
-        color: #f8fafc;
-        font-family: 'Poppins', sans-serif;
-        height: 100%;
-        width: 100vw;
-        overflow-x: hidden;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-    }
-
-    body::-webkit-scrollbar { display: none; }
-
-    /* --- HEADER DESIGN --- */
-    header {
-        position: fixed;
-        top: 0; left: 0; width: 100%;
-        height: var(--header-h);
-        background: rgba(5, 7, 10, 0.95);
-        backdrop-filter: blur(25px) saturate(180%);
-        -webkit-backdrop-filter: blur(25px) saturate(180%);
-        border-bottom: 1px solid rgba(16, 185, 129, 0.3);
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.4),
-            0 0 0 1px rgba(16, 185, 129, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        z-index: 10000;
-        display: flex; 
-        align-items: center;
-        padding: 0 16px;
-    }
-
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .logo-section { display: flex; align-items: center; gap: 12px; }
-
-    .profile-avatar {
-        position: relative;
-        width: 38px; height: 38px;
-        border-radius: 12px;
-        border: 2px solid rgba(16, 185, 129, 0.6);
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-    }
-
-    .profile-avatar::before {
-        content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
-        background: linear-gradient(45deg, #10b981, #fbbf24, #10b981);
-        border-radius: 14px; z-index: -1; opacity: 0; transition: opacity 0.3s ease;
-    }
-    .profile-avatar:hover::before { opacity: 1; }
-
-    .logo-text {
-        font-size: clamp(18px, 4vw, 22px); font-weight: 900;
-        background: linear-gradient(135deg, #fbbf24, #f59e0b, #10b981);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        letter-spacing: -0.02em; text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
-        position: relative;
-    }
-
-    .header-actions { display: flex; align-items: center; gap: 12px; }
-
-    .notif-btn {
-        width: 38px; height: 38px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex; align-items: center; justify-content: center;
-        position: relative; cursor: pointer; transition: all 0.3s ease;
-    }
-    .notif-btn:active { transform: scale(0.95); }
-    .notif-icon { width: 20px; height: 20px; filter: invert(1) opacity(0.8); }
-    .notif-dot {
-        position: absolute; top: 8px; right: 9px;
-        width: 6px; height: 6px; background-color: #ef4444;
-        border-radius: 50%; box-shadow: 0 0 5px #ef4444;
-        animation: pulse-red 2s infinite;
-    }
-    @keyframes pulse-red { 0% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.6; } }
-
-    .wallet-container {
-        position: relative;
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(16, 185, 129, 0.2));
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(251, 191, 36, 0.4);
-        border-radius: 20px; padding: 8px 14px;
-        display: flex; align-items: center; gap: 8px;
-        cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        min-width: 80px;
-        box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-    .wallet-container:hover {
-        transform: translateY(-2px) scale(1.02);
-        background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(16, 185, 129, 0.3));
-    }
-    .wallet-icon { width: 18px; height: 18px; filter: brightness(1.2) contrast(1.1); transition: filter 0.3s ease; }
-    .wallet-amount { font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: -0.01em; }
-
-    /* --- PROFILE & MODAL STYLES --- */
+<style>
     .profile-card {
       background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(16, 185, 129, 0.2);
       border-radius: 1.3rem;
     }
-    /* Modal Design */
+    /* Modal Design (Shared for Support and Social) */
     .support-modal {
       position: fixed; left: 0; top: 0;
       width: 100vw; height: 100vh;
       background: rgba(0, 0, 0, 0.85);
       display: none; align-items: center;
-      justify-content: center; z-index: 20000; /* High z-index to sit over header */
+      justify-content: center; z-index: 2000;
       backdrop-filter: blur(8px);
     }
     .support-modal.active { display: flex; }
@@ -154,83 +19,30 @@
     
     /* Social Button Styles */
     .social-link-btn {
-        display: flex; align-items: center; gap: 15px;
-        width: 100%; padding: 12px 15px; margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 10px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px; color: white; font-weight: 600; font-size: 14px;
-        transition: all 0.2s ease; text-align: left;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        text-align: left;
     }
     .social-link-btn:hover {
-        background: rgba(16, 185, 129, 0.1); border-color: #10b981; transform: translateX(5px);
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10b981;
+        transform: translateX(5px);
     }
     .social-icon { width: 24px; height: 24px; object-fit: contain; }
+</style>
 
-    /* --- CONTENT AREA --- */
-    #app-outlet {
-        width: 100%; flex: 1;
-        padding-top: calc(var(--header-h) + 20px);
-        padding-bottom: calc(var(--nav-h) + 50px);
-        box-sizing: border-box;
-    }
-
-    /* --- BOTTOM DOCK --- */
-    .bottom-nav {
-        position: fixed !important; bottom: 20px; left: 5%; right: 5%;
-        width: 90%; height: var(--nav-h);
-        background: var(--nav-bg) !important;
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        display: flex; justify-content: space-around; align-items: center;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        z-index: 10000; border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--emerald-glow);
-    }
-    .nav-btn {
-        position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: #94a3b8; text-decoration: none; font-size: 10px; font-weight: 600;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        background: transparent; border: none; width: 20%;
-    }
-    .nav-btn img { width: 22px; height: 22px; margin-bottom: 4px; transition: transform 0.3s ease; filter: invert(1) opacity(0.5); }
-    .nav-btn.active { color: var(--active-color) !important; opacity: 1 !important; }
-    .nav-btn.active img { filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(120deg) brightness(100%) contrast(100%) !important; transform: translateY(-5px); }
-    
-    .center-btn {
-        background: var(--accent-grad) !important; width: 58px !important; height: 58px !important;
-        border-radius: 50% !important; margin-top: -45px;
-        border: 5px solid var(--bg-dark) !important;
-        box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4); opacity: 1 !important;
-    }
-    .center-btn img { filter: brightness(0) !important; margin-bottom: 0; width: 26px; height: 26px; }
-    .center-btn span { position: absolute; bottom: -22px; color: #fbbf24; font-weight: 800; }
-  </style>
-</head>
-
-<body>
-
-  <header>
-    <div class="header-container">
-      <div class="logo-section">
-        <div class="profile-avatar">
-          <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-full h-full object-cover">
-        </div>
-        <h1 class="logo-text">FFTW</h1>
-      </div>
-      
-      <div class="header-actions">
-          <button class="notif-btn" onclick="router.navigate('notifications')">
-              <span class="notif-dot"></span>
-              <img src="https://cdn-icons-png.flaticon.com/512/3602/3602145.png" class="notif-icon">
-          </button>
-          <div id="walletDisplay" onclick="router.navigate('wallet')" class="wallet-container">
-            <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="wallet-icon">
-            <span id="nav-wallet-amount" class="wallet-amount">₹0.00</span>
-          </div>
-      </div>
-    </div>
-  </header>
-
-  <div id="supportModal" class="support-modal">
+<div id="supportModal" class="support-modal">
     <div class="bg-gray-900 rounded-2xl p-7 text-center w-[85%] max-w-xs shadow-2xl border border-emerald-500/50">
       <h3 class="text-lg font-bold text-emerald-400 mb-3 uppercase tracking-wider">Support</h3>
       <p class="text-sm font-semibold mb-4 text-gray-300">Insta Username:</p>
@@ -238,36 +50,42 @@
       <button id="copySupportBtn" class="px-4 py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 transition-colors text-white w-full mb-3 shadow-lg shadow-emerald-900/50">Copy Username</button>
       <button id="closeSupportBtn" class="px-4 py-2 rounded-xl font-semibold bg-gray-700 hover:bg-gray-600 transition-colors text-white w-full">Close</button>
     </div>
-  </div>
+</div>
 
-  <div id="socialModal" class="support-modal">
+<div id="socialModal" class="support-modal">
     <div class="bg-gray-900 rounded-2xl p-6 text-center w-[85%] max-w-xs shadow-2xl border border-emerald-500/50 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+        
         <h3 class="text-lg font-bold text-white mb-1">Join Community</h3>
         <p class="text-xs text-gray-400 mb-5">Stay updated with our latest tournaments</p>
+        
         <div class="space-y-2">
             <button class="social-link-btn" onclick="alert('Link coming soon!')">
                 <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" class="social-icon">
                 <span>YouTube</span>
             </button>
+            
             <button class="social-link-btn" onclick="alert('Link coming soon!')">
                 <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" class="social-icon">
                 <span>Instagram</span>
             </button>
+            
             <button class="social-link-btn" onclick="alert('Link coming soon!')">
                 <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" class="social-icon">
                 <span>Telegram</span>
             </button>
+            
             <button class="social-link-btn" onclick="alert('Link coming soon!')">
                 <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png" class="social-icon">
                 <span>Discord</span>
             </button>
         </div>
+
         <button id="closeSocialBtn" class="mt-4 px-4 py-2 rounded-xl font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 w-full transition-colors border border-gray-700">Close</button>
     </div>
-  </div>
+</div>
 
-  <main id="app-outlet" class="px-4 max-w-md mx-auto space-y-6 py-4">
+<main class="px-4 max-w-md mx-auto space-y-6 py-4">
     <div class="profile-card p-8 text-center shadow-2xl">
       <div class="relative inline-block">
         <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg shadow-emerald-900/30" />
@@ -321,7 +139,7 @@
           <svg class="w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
-        <button onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
+        <button onclick="window.location.href = 'faq.html#terms'" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5 group">
           <div class="flex items-center gap-4">
             <img src="https://cdn-icons-png.flaticon.com/512/3503/3503827.png" class="w-6 h-6 white-icon group-hover:scale-110 transition-transform" />
             <span class="font-semibold text-sm text-white">Terms & Conditions</span>
@@ -337,60 +155,14 @@
         </button>
       </div>
     </div>
-  </main>
+</main>
 
-  <nav class="bottom-nav">
-    <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn">
-        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
-        <span>Home</span>
-    </button>
-    <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn">
-        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png">
-        <span>Matches</span>
-    </button>
-    <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn center-btn">
-        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png">
-        <span>Refer</span>
-    </button>
-    <button data-route="profile" onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn active">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png">
-        <span>Profile</span>
-    </button>
-    <button data-route="wallet" onclick="router.navigate('wallet'); handleNavClick(this)" class="nav-btn">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png">
-        <span>Wallet</span>
-    </button>
-  </nav>
-
-  <script>
-    // Simple router placeholder
-    const router = {
-        navigate: (path) => {
-            console.log("Navigating to:", path);
-            window.location.hash = path;
-            // In a real app, this would load content dynamically.
-            // For now, if the path is 'faq', it simulates going to that page.
-            if(path === 'faq') {
-                alert("Navigating to FAQ Page (Terms Section is here)");
-            }
-        }
-    };
-
-    function handleNavClick(clickedBtn) {
-        if(!clickedBtn) return;
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        clickedBtn.classList.add('active');
-    }
-
-    // Modal & Profile Logic
-    window.addEventListener('load', () => {
+<script>
+    (function() {
         // --- SUPPORT MODAL ---
         const supportModal = document.getElementById("supportModal");
-        const openSupportBtn = document.getElementById("openSupport");
-        const closeSupportBtn = document.getElementById("closeSupportBtn");
-        
-        if(openSupportBtn) openSupportBtn.onclick = () => supportModal.classList.add("active");
-        if(closeSupportBtn) closeSupportBtn.onclick = () => supportModal.classList.remove("active");
+        document.getElementById("openSupport").onclick = () => supportModal.classList.add("active");
+        document.getElementById("closeSupportBtn").onclick = () => supportModal.classList.remove("active");
         
         document.getElementById("copySupportBtn").onclick = () => {
           const input = document.getElementById("supportNumberInput");
@@ -399,39 +171,34 @@
           alert("Username Copied!");
         };
 
-        // --- SOCIAL MODAL ---
+        // --- SOCIAL MODAL (NEW) ---
         const socialModal = document.getElementById("socialModal");
-        const openSocialBtn = document.getElementById("openSocial");
-        const closeSocialBtn = document.getElementById("closeSocialBtn");
+        document.getElementById("openSocial").onclick = () => socialModal.classList.add("active");
+        document.getElementById("closeSocialBtn").onclick = () => socialModal.classList.remove("active");
 
-        if(openSocialBtn) openSocialBtn.onclick = () => socialModal.classList.add("active");
-        if(closeSocialBtn) closeSocialBtn.onclick = () => socialModal.classList.remove("active");
+        // --- USER AUTH LOGIC ---
+        const auth = window.auth;
+        const db = window.db;
 
-        // --- SIMULATED USER AUTH ---
-        // In your real app, 'window.auth' comes from app-ui.js
-        const dummyUser = { email: "player1@ffth.com" }; 
-        
-        if (dummyUser) {
-            const elEmail = document.getElementById("displayEmail");
-            const elUser = document.getElementById("displayUsername");
-            if(elEmail) {
-                elEmail.textContent = dummyUser.email;
-                elEmail.classList.remove('italic');
-            }
-            if(elUser) {
-                elUser.textContent = dummyUser.email.split('@')[0].toUpperCase();
-            }
+        const user = auth ? auth.currentUser : null;
+        if (user) {
+            document.getElementById("displayEmail").textContent = user.email;
+            document.getElementById("displayUsername").textContent = user.email.split('@')[0].toUpperCase();
+            document.getElementById("displayEmail").classList.remove('italic');
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
           if(confirm("Are you sure you want to logout?")) {
-            console.log("Logging out...");
-            // window.location.href = "login.html";
+            try {
+                if(auth) {
+                    await auth.signOut();
+                    window.location.href = "login.html";
+                }
+            } catch (err) {
+                console.error("Logout Error:", err);
+                alert("Logout failed. Please try again.");
+            }
           }
         };
-    });
-  </script>
-
-  <script type="module" src="app-ui.js"></script>
-</body>
-</html>
+    })();
+</script>
