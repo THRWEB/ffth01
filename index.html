@@ -167,7 +167,7 @@
         border-radius: 50%;
         box-shadow: 0 0 5px #ef4444;
         animation: pulse-red 2s infinite;
-        display: none; /* Hidden by default, shown via JS if data exists */
+        display: none; 
     }
     
     @keyframes pulse-red { 0% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.6; } }
@@ -249,7 +249,7 @@
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
-        padding-top: var(--header-h); /* Clear header */
+        padding-top: var(--header-h);
     }
 
     .notif-overlay.open .notif-panel {
@@ -488,7 +488,10 @@
               <button class="close-notif" id="close-notif">&times;</button>
           </div>
           <div class="notif-list" id="notif-list-container">
+              <div style="text-align:center; padding: 20px; color: #64748b;">
+                  Loading updates...
               </div>
+          </div>
       </div>
   </div>
 
@@ -500,7 +503,7 @@
 
     <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn">
         <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png">
-        <span>Matchess</span>
+        <span>Matches</span>
     </button>
 
     <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn center-btn">
@@ -520,23 +523,9 @@
   </nav>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    // We import onSnapshot for real-time tracking
-    import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // --- ⚠️ PASTE YOUR FIREBASE CONFIG HERE ---
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Initialize
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // IMPORTANT: Import 'db' from your existing app-ui.js to share connection
+    import { db } from './app-ui.js'; 
+    import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // DOM Elements
     const notifBtn = document.getElementById('notif-trigger');
@@ -545,79 +534,11 @@
     const listContainer = document.getElementById('notif-list-container');
     const badge = document.getElementById('notif-badge');
 
-    // --- 1. SETUP REAL-TIME LISTENER ---
-    function subscribeToNotifications() {
-        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #fbbf24;">Connecting...</div>';
-
-        try {
-            // We listen to the "notifications" collection
-            // orderBy("timestamp", "desc") ensures newest first. 
-            // Note: If you haven't created a composite index in Firebase Console, this specific query might need index creation.
-            // If it fails initially, check console for an index creation link.
-            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(20));
-            
-            // onSnapshot triggers every time data changes on the server
-            onSnapshot(q, (snapshot) => {
-                
-                // 2. Handle Empty State
-                if (snapshot.empty) {
-                    listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No new notifications.</div>';
-                    badge.style.display = 'none';
-                    return;
-                }
-
-                // 3. Show Badge if we have data
-                badge.style.display = 'block';
-                listContainer.innerHTML = ''; // Clear loader/old data
-
-                // 4. Populate List
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    const title = data.title || "New Notification";
-                    const message = data.message || data.body || "";
-                    
-                    let timeStr = "";
-                    if(data.timestamp) {
-                        // Handle Firestore Timestamp
-                        if(data.timestamp.seconds) {
-                            timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString();
-                        } else {
-                            // Handle standard string date
-                            timeStr = new Date(data.timestamp).toLocaleString();
-                        }
-                    }
-
-                    const cardHTML = `
-                        <div class="notif-card">
-                            <div class="n-title">${title}</div>
-                            <div class="n-body">${message}</div>
-                            ${timeStr ? `<span class="n-time">${timeStr}</span>` : ''}
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', cardHTML);
-                });
-
-            }, (error) => {
-                console.error("Firebase Listener Error:", error);
-                listContainer.innerHTML = `<div style="text-align:center; color: #ef4444; padding: 20px;">
-                    Error connecting to data.<br>
-                    <span style="font-size:10px; opacity:0.7">Check console & API Keys</span>
-                </div>`;
-            });
-
-        } catch (e) {
-            console.error("Setup Error:", e);
-        }
-    }
-
-    // Initialize listener immediately to "track" data and show badge
-    subscribeToNotifications();
-
-    // UI Logic for Overlay
+    // Toggle Overlay
     function toggleOverlay(show) {
         if(show) {
             overlay.classList.add('open');
+            fetchNotifications(); 
         } else {
             overlay.classList.remove('open');
         }
@@ -626,9 +547,90 @@
     notifBtn.addEventListener('click', () => toggleOverlay(true));
     closeBtn.addEventListener('click', () => toggleOverlay(false));
     
+    // Close on click outside panel
     overlay.addEventListener('click', (e) => {
         if(e.target === overlay) toggleOverlay(false);
     });
+
+    // Fetch Logic
+    async function fetchNotifications() {
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #fbbf24;">Syncing...</div>';
+        
+        try {
+            if (!db) {
+                throw new Error("Database not initialized in app-ui.js");
+            }
+
+            // Create query
+            const q = query(
+                collection(db, "notifications"), 
+                orderBy("timestamp", "desc"), // Requires a composite index in Firestore sometimes
+                limit(10)
+            );
+            
+            const querySnapshot = await getDocs(q);
+            
+            listContainer.innerHTML = ''; 
+
+            if (querySnapshot.empty) {
+                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No new notifications.</div>';
+                return;
+            }
+
+            badge.style.display = 'block';
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                const title = data.title || "Alert";
+                const message = data.message || data.body || "Tap for details";
+                
+                let timeStr = "";
+                if(data.timestamp) {
+                    // Handle Firestore Timestamp or standard Date string
+                    const dateObj = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+                    timeStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+
+                const cardHTML = `
+                    <div class="notif-card">
+                        <div class="n-title">${title}</div>
+                        <div class="n-body">${message}</div>
+                        ${timeStr ? `<span class="n-time">${timeStr}</span>` : ''}
+                    </div>
+                `;
+                listContainer.innerHTML += cardHTML;
+            });
+
+        } catch (error) {
+            console.error("Notif Error:", error);
+            // Fallback for missing index or other errors: try without sorting
+            if(error.code === 'failed-precondition' || error.message.includes('index')) {
+                 fetchSimpleNotifications();
+            } else {
+                 listContainer.innerHTML = `<div style="text-align:center; color: #ef4444; padding: 20px;">Connection Error.<br><small>${error.message}</small></div>`;
+            }
+        }
+    }
+
+    // Fallback function if sorting fails (no index)
+    async function fetchSimpleNotifications() {
+        const q = query(collection(db, "notifications"), limit(10));
+        const querySnapshot = await getDocs(q);
+        listContainer.innerHTML = '';
+        if (querySnapshot.empty) {
+             listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No notifications found.</div>';
+             return;
+        }
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            listContainer.innerHTML += `
+                <div class="notif-card">
+                    <div class="n-title">${data.title || 'Notification'}</div>
+                    <div class="n-body">${data.message || data.body || ''}</div>
+                </div>`;
+        });
+    }
   </script>
 
   <script>
