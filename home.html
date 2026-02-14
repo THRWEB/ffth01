@@ -3,41 +3,39 @@
     #cardsGrid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 16px; /* Slightly more breathing room */
+        gap: 16px; 
         width: 100%; 
         margin-top: 20px;
     }
 
-    /* 2. Modern Card Design (Full Image Style) */
+    /* 2. Modern Card Design */
     .es-main-section { 
         position: relative;
-        height: 140px; /* Taller for better visual impact */
-        border-radius: 1.5rem; /* Smoother, rounder corners */
+        height: 140px; 
+        border-radius: 1.5rem; 
         overflow: hidden;
         cursor: pointer;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        background: #0f172a; /* Fallback color */
+        background: #0f172a; 
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         isolation: isolate;
     }
 
-    /* Hover Effect: Lift up + Glow */
     .es-main-section:hover {
         transform: translateY(-3px);
         box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.8);
         border-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* Active/Click Effect */
     .es-main-section:active {
         transform: scale(0.96);
     }
 
-    /* 3. Image Container (Full Background) */
+    /* 3. Image Container */
     .card-img-container {
         position: absolute;
-        inset: 0; /* Fills the whole card */
+        inset: 0; 
         width: 100%;
         height: 100%;
         z-index: 1;
@@ -50,47 +48,75 @@
         transition: transform 0.5s ease;
     }
 
-    /* Zoom image slightly on hover */
     .es-main-section:hover .card-img-container img {
         transform: scale(1.1);
     }
 
-    /* 4. Text Overlay (Glassy Gradient) */
+    /* 4. UPDATED: Modern Overlay & Text Badge */
     .card-overlay {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 100%);
+        inset: 0;
+        /* Subtle gradient to ensure text readability */
+        background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
         z-index: 2;
         display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
+        align-items: flex-end; /* Push text to bottom */
+        justify-content: flex-start; /* Align left */
         padding: 12px;
     }
 
-    .card-title {
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        margin-bottom: 2px;
-        /* Dynamic border bottom for color indicator */
-        border-bottom: 3px solid transparent; 
-        display: inline-block;
-        width: fit-content;
+    /* The New "Glass Pill" Label */
+    .card-badge {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px; /* Space between dot and text */
+        
+        /* Glassmorphism Effect */
+        background: rgba(15, 23, 42, 0.65); 
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px; /* Pill shape */
+        padding: 6px 14px;
+        
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease;
     }
 
-    /* 5. Modern Banner Design */
+    .es-main-section:hover .card-badge {
+        background: rgba(15, 23, 42, 0.85);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* The Colored Dot Indicator */
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        box-shadow: 0 0 8px currentColor; /* Glow effect based on color */
+    }
+
+    /* The Text Style */
+    .badge-text {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #e2e8f0; /* Soft white */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* 5. Modern Banner Design (Unchanged) */
     .promo-banner { 
         width: 100%; 
         border-radius: 1.2rem; 
         overflow: hidden; 
         margin-bottom: 1.5rem;
         position: relative;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15); /* Subtle red glow for YT */
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15); 
         border: 1px solid rgba(255,255,255,0.05);
         animation: bannerFloat 6s ease-in-out infinite;
     }
@@ -105,7 +131,6 @@
         opacity: 0.8;
     }
 
-    /* Gentle float animation for banner */
     @keyframes bannerFloat {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-4px); }
@@ -122,14 +147,14 @@
 
 <script>
     (function() {
-        // Data Set (Unchanged)
+        // Data Set
         const cardData = [
-            { cat: "soloc", label: "Solo:Classic", color: "#60a5fa", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
-            { cat: "solocs", label: "Solo:CS", color: "#fb923c", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
-            { cat: "duoc", label: "Duo:Classic", color: "#38bdf8", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
-            { cat: "duocs", label: "Duo:CS", color: "#38bdf8", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
-            { cat: "squadc", label: "Squad:Classic", color: "#facc15", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" },
-            { cat: "squadcs", label: "Squad:CS", color: "#facc15", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" }
+            { cat: "soloc", label: "Solo: Classic", color: "#60a5fa", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
+            { cat: "solocs", label: "Solo: CS", color: "#fb923c", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
+            { cat: "duoc", label: "Duo: Classic", color: "#38bdf8", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
+            { cat: "duocs", label: "Duo: CS", color: "#38bdf8", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
+            { cat: "squadc", label: "Squad: Classic", color: "#facc15", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" },
+            { cat: "squadcs", label: "Squad: CS", color: "#facc15", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" }
         ];
         
         const grid = document.getElementById("cardsGrid");
@@ -143,9 +168,10 @@
                     </div>
                     
                     <div class="card-overlay">
-                        <h3 class="card-title" style="color: ${card.color}; border-color: ${card.color};">
-                            ${card.label}
-                        </h3>
+                        <div class="card-badge">
+                            <div class="status-dot" style="color: ${card.color}; background-color: ${card.color};"></div>
+                            <span class="badge-text">${card.label}</span>
+                        </div>
                     </div>
                 </section>
             `).join('');
