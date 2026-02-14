@@ -10,61 +10,84 @@
     }
     .es-value { font-weight: 800; color: #4ade80; }
     .match-title { text-shadow: 0 2px 12px #08080866; }
+    
+    /* Animation for smooth loading */
+    .fade-in-up {
+      animation: fadeInUp 0.4s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
 <main class="max-w-md mx-auto px-3 py-4">
     <div id="matchContainer" class="space-y-4">
-        <p class="text-center text-gray-400 mt-10 animate-pulse">Loading matches...</p>
+        <p id="loadingText" class="text-center text-gray-400 mt-10 animate-pulse">Loading matches...</p>
     </div>
 </main>
 
 <script type="module">
-    import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    // Firebase Firestore functions import
+    import { collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     (function() {
         const container = document.getElementById('matchContainer');
-        
-        // 1. Get the category ID saved from the Home Page click
         const categoryId = localStorage.getItem('currentCat');
 
-        // Check if category is missing
+        // ১. ক্যাটাগরি চেক
         if (!categoryId) {
             container.innerHTML = `
                 <div class="text-center mt-10">
                     <p class="text-red-400 font-bold text-lg">No Category Selected!</p>
-                    <p class="text-gray-500 text-sm">Please go back to Home and select a game type.</p>
+                    <p class="text-gray-500 text-sm">Please go back to Home.</p>
                 </div>`;
             return;
         }
 
-        // 2. Connect to Firebase 'allMatches' collection
-        const q = collection(window.db, "allMatches");
+        // ২. ডাটাবেস কানেকশন চেক (Firebase app initialized থাকতে হবে)
+        // যদি window.db কাজ না করে, তবে নিশ্চিত করুন firebase-init ফাইলে window.db = db; করা আছে।
+        const db = window.db; 
+        if (!db) {
+            console.error("Firestore Database (window.db) not found!");
+            container.innerHTML = '<p class="text-center text-orange-400 mt-10">Database connection error!</p>';
+            return;
+        }
 
-        onSnapshot(q, (snapshot) => {
-            if (!document.getElementById('matchContainer')) return;
+        const matchCollection = collection(db, "allMatches");
+
+        // ৩. রিয়েল-টাইম লিসেনার
+        onSnapshot(matchCollection, (snapshot) => {
+            if (!container) return;
             
             let htmlContent = '';
             let count = 0;
 
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-center text-gray-500 mt-20 italic">No matches available in database!</p>';
+                return;
+            }
+
             snapshot.forEach((doc) => {
                 const match = doc.data();
+                const matchId = doc.id;
                 
-                // 3. Robust Filtering:
-                // We check if match.category exists, then compare it with the localStorage category
-                // We use toLowerCase() and trim() to ensure 'soloc' matches 'SoloC' or ' soloc '
-                if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase().trim()) {
+                // ৪. ক্যাটাগরি ফিল্টারিং (Case Insensitive)
+                const targetCat = categoryId.toLowerCase().trim();
+                const matchCat = match.category ? match.category.toString().toLowerCase().trim() : "";
+
+                if (matchCat === targetCat) {
                     count++;
                     
-                    // Format Time (Handle missing formatter gracefully)
+                    // টাইম ফরম্যাট চেক
                     const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : (match.time || "TBA");
                     
-                    // 4. Generate Card HTML
                     htmlContent += `
                         <div id="matchCard" class="relative overflow-hidden fade-in-up">
                           <div class="flex items-center gap-3">
                             <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
                                  class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" 
-                                 alt="Match Image"/>
+                                 onerror="this.src='https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'"/>
                             <div class="match-title text-gray-100 text-lg font-bold">${match.title || 'Tournament'}</div>
                           </div>
                           
@@ -76,23 +99,26 @@
                             <div class="flex justify-between text-gray-400"><span>Slots Left:</span><span class="es-value text-red-400">${match.slot || 0}</span></div>
                           </div>
 
-                          <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
-                            class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm hover:shadow-emerald-900/50">
+                          <button onclick="localStorage.setItem('matchId', '${matchId}'); router.navigate('match-details')" 
+                            class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm">
                             Match Details
                           </button>
                         </div>`;
                 }
             });
 
-            // 5. Update the UI
+            // ৫. রেজাল্ট রেন্ডার
             if (count === 0) {
                 container.innerHTML = `
                     <div class="text-center mt-20">
-                        <p class="text-gray-500 italic font-bold">No matches found for <span class="text-emerald-400">${categoryId}</span>!</p>
+                        <p class="text-gray-500 italic font-bold">No active matches for "${categoryId.toUpperCase()}"</p>
                     </div>`;
             } else {
                 container.innerHTML = htmlContent;
             }
+        }, (error) => {
+            console.error("Firestore Error:", error);
+            container.innerHTML = '<p class="text-center text-red-400 mt-10">Error loading matches. Check console.</p>';
         });
     })();
 </script>
