@@ -15,7 +15,6 @@
     input, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
     #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 500; display: flex; justify-content: center; align-items: center; }
     #admin-panel { display: none; }
-    /* Scrollbar styling for lists */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -107,10 +106,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. LOGIN LOGIC (UPDATED FOR EMAIL & ISADMIN) ---
+    // --- 1. LOGIN LOGIC (Email + Password + isAdmin Check) ---
     document.getElementById('btnLogin').onclick = async () => {
-        const email = document.getElementById('adminEmail').value.trim(); // Get Email
-        const pass = document.getElementById('adminPass').value.trim();  // Get Password
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPass').value.trim();
         const btn = document.getElementById('btnLogin');
         const err = document.getElementById('loginError');
 
@@ -118,8 +117,8 @@
         err.classList.add('hidden');
         btn.innerText = "VERIFYING...";
 
-        if(!email || !pass) {
-            err.innerText = "Please enter Email and Password.";
+        if(!email || !password) {
+            err.innerText = "Please enter both email and password.";
             err.classList.remove('hidden');
             btn.innerText = "LOGIN";
             return;
@@ -137,8 +136,7 @@
                 // User found, now check password and isAdmin status
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    // STRICT CHECK: Password match AND isAdmin is strictly true
-                    if (data.password === pass && data.isAdmin === true) {
+                    if (data.password === password && data.isAdmin === true) {
                         isAuthenticated = true;
                     }
                 });
@@ -148,7 +146,7 @@
                 sessionStorage.setItem('isAdminAuth', 'true');
                 initPanelAccess();
             } else {
-                err.innerText = "Access Denied. Incorrect credentials or not an Admin.";
+                err.innerText = "Access Denied. Check email, password, or Admin privileges.";
                 err.classList.remove('hidden');
             }
         } catch (error) {
@@ -169,8 +167,6 @@
     }
 
     // --- 2. GLOBAL FUNCTIONS ---
-    
-    // Switch Tabs
     window.switchTab = (id, btn) => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -178,7 +174,6 @@
         btn.classList.add('active');
     };
 
-    // Logout
     window.logoutAdmin = () => {
         if(confirm("Logout Admin Panel?")){
             sessionStorage.removeItem('isAdminAuth');
@@ -186,9 +181,7 @@
         }
     };
 
-    // Approve Deposit Logic
     window.approveDeposit = async (reqId, uid, amt) => {
-        // ... (Existing Logic)
         if(!confirm(`Confirm Approve ₹${amt}?`)) return;
         
         try {
@@ -212,7 +205,6 @@
         }
     };
 
-    // Delete/Complete Request Logic
     window.deleteReq = async (collectionName, docId) => {
         if(confirm("Are you sure you want to remove this request?")) {
             try {
@@ -227,7 +219,6 @@
     function startDashboard() {
         console.log("Dashboard Started. Listening to Firebase...");
 
-        // Match Publish
         document.getElementById('pubBtn').onclick = async () => {
             const btn = document.getElementById('pubBtn');
             btn.innerText = "Processing...";
@@ -251,7 +242,6 @@
             btn.innerText = "PUBLISH";
         };
 
-        // Real-time DEPOSITS
         onSnapshot(collection(db, "addMoneyRequests"), (snapshot) => {
             const body = document.getElementById('payBody');
             body.innerHTML = '';
@@ -272,6 +262,7 @@
                     </div>
                     <div class="flex flex-col gap-2 text-right">
                         <a href="${r.proofUrl}" target="_blank" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 px-4 py-1.5 rounded-lg text-xs font-bold border border-sky-500/20 transition-all">VIEW PROOF</a>
+                        
                         <div class="flex gap-2">
                              <button onclick="deleteReq('addMoneyRequests','${docSnap.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20">REJECT</button>
                              <button onclick="approveDeposit('${docSnap.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg shadow-emerald-900/20">APPROVE</button>
@@ -279,9 +270,10 @@
                     </div>
                 </div>`;
             });
+        }, (error) => {
+            console.error("Deposit Listener Error:", error);
         });
 
-        // Real-time WITHDRAWALS
         onSnapshot(collection(db, "withdrawalRequests"), (snapshot) => {
             const body = document.getElementById('withdrawBody');
             body.innerHTML = '';
@@ -306,6 +298,8 @@
                     <button onclick="deleteReq('withdrawalRequests','${docSnap.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20 active:scale-95 transition-all">MARK PAID</button>
                 </div>`;
             });
+        }, (error) => {
+             console.error("Withdraw Listener Error:", error);
         });
     }
 
