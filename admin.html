@@ -27,7 +27,7 @@
     <div class="glass p-8 max-w-sm w-full text-center space-y-6">
       <h2 class="text-3xl font-black text-emerald-500 uppercase">FFTW Admin</h2>
       <div class="space-y-3">
-        <input type="text" id="adminUser" placeholder="Username">
+        <input type="text" id="adminUser" placeholder="Admin Username">
         <input type="password" id="adminPass" placeholder="Password">
       </div>
       <button id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold text-white shadow-xl transition-all active:scale-95">LOGIN</button>
@@ -92,9 +92,9 @@
   </div>
 
   <script type="module">
-    // Using a stable version (10.8.0) to ensure compatibility, as v12 is not standard yet
+    // Added 'query', 'where', 'getDocs' to imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB1vzDj_3-tymzU-EomjCIlbMhsoSnDiTU",
@@ -108,19 +108,56 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const LOGIN_USER = "ffth01";
-    const LOGIN_PASS = "123456";
+    // --- 1. LOGIN LOGIC (Database Check) ---
+    document.getElementById('btnLogin').onclick = async () => {
+        const u = document.getElementById('adminUser').value.trim();
+        const p = document.getElementById('adminPass').value.trim();
+        const btn = document.getElementById('btnLogin');
+        const err = document.getElementById('loginError');
 
-    // --- 1. LOGIN LOGIC ---
-    document.getElementById('btnLogin').onclick = () => {
-        const u = document.getElementById('adminUser').value;
-        const p = document.getElementById('adminPass').value;
-        if(u === LOGIN_USER && p === LOGIN_PASS) {
-            sessionStorage.setItem('isAdminAuth', 'true');
-            initPanelAccess();
-        } else {
-            document.getElementById('loginError').classList.remove('hidden');
+        // Reset UI
+        err.classList.add('hidden');
+        btn.innerText = "VERIFYING...";
+
+        if(!u || !p) {
+            err.innerText = "Please enter both fields.";
+            err.classList.remove('hidden');
+            btn.innerText = "LOGIN";
+            return;
         }
+
+        try {
+            // 1. Query 'users' collection where 'username' matches input
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", u));
+            const querySnapshot = await getDocs(q);
+
+            let isAuthenticated = false;
+
+            if (!querySnapshot.empty) {
+                // User found, now check password and isAdmin status
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.password === p && data.isAdmin === true) {
+                        isAuthenticated = true;
+                    }
+                });
+            }
+
+            if(isAuthenticated) {
+                sessionStorage.setItem('isAdminAuth', 'true');
+                initPanelAccess();
+            } else {
+                err.innerText = "Access Denied. Check credentials or Admin privileges.";
+                err.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            err.innerText = "Connection Error: " + error.message;
+            err.classList.remove('hidden');
+        }
+
+        btn.innerText = "LOGIN";
     };
 
     function initPanelAccess() {
